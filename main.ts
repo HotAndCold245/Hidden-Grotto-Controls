@@ -9,9 +9,12 @@ interface PokeTypeSettings {
 	fontWidth: number;
 	tagInteraction: boolean;
 	tableStyle: boolean;
+	tableColor: boolean;
+	tableWidth: boolean;
 	mobileStatusbar: boolean;
 	mobileToolbarheight: number;
 	blockquoteBorder: boolean;
+	blockquoteBackground: boolean;
 	calloutBackground: boolean;
 	embedHeight: number;
 	embedTitle: boolean;
@@ -26,9 +29,12 @@ const DEFAULT_SETTINGS: PokeTypeSettings = {
 	fontWidth: 100,
 	tagInteraction: true,
 	tableStyle: false,
+	tableColor: false,
+	tableWidth: true,
 	mobileStatusbar: false,
 	mobileToolbarheight: 2,
 	blockquoteBorder: false,
+	blockquoteBackground: false,
 	calloutBackground: false,
 	embedHeight: 4000,
 	embedTitle: true,
@@ -117,13 +123,18 @@ export default class HiddenGrotto extends Plugin {
 		// Custom icons for the ribbon buttons
 		addIcon('cycle-primary-type', '<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 26 26" version="1.1"><g id="surface1"><path style=" stroke:currentColor;fill-rule:evenodd;fill:none;fill-opacity:1;" d="M 13.15625 11.949219 C 13.320312 11.847656 13.457031 11.640625 13.570312 11.410156 C 15.035156 12.007812 16.0625 13.421875 16.0625 15.070312 C 16.0625 17.261719 14.246094 19.039062 12.007812 19.039062 C 11.085938 19.039062 10.238281 18.742188 9.558594 18.234375 C 9.335938 18.128906 9.152344 18.027344 9 17.945312 C 8.769531 17.816406 8.613281 17.734375 8.519531 17.746094 C 8.238281 17.785156 8.320312 18.042969 8.394531 18.277344 C 8.445312 18.433594 8.492188 18.582031 8.417969 18.644531 C 8.34375 18.707031 8.097656 18.472656 7.8125 18.199219 C 7.421875 17.828125 6.957031 17.382812 6.734375 17.519531 C 6.5625 17.625 6.730469 17.910156 6.9375 18.261719 L 6.953125 18.285156 C 7.039062 18.433594 7.140625 18.585938 7.234375 18.722656 C 7.421875 19.003906 7.574219 19.230469 7.496094 19.265625 C 7.40625 19.3125 6.769531 18.882812 6.230469 18.285156 C 6.023438 18.054688 5.824219 17.808594 5.636719 17.574219 C 5.230469 17.066406 4.890625 16.644531 4.699219 16.695312 C 4.46875 16.753906 4.644531 17.226562 4.898438 17.683594 C 5.015625 17.898438 5.15625 18.113281 5.277344 18.300781 C 5.46875 18.59375 5.613281 18.816406 5.558594 18.84375 C 5.488281 18.878906 4.871094 18.277344 4.453125 17.519531 C 4.203125 17.066406 3.992188 16.570312 3.824219 16.164062 C 3.640625 15.726562 3.503906 15.402344 3.414062 15.367188 C 3.101562 15.253906 3.101562 15.894531 3.226562 16.816406 C 3.242188 16.933594 3.265625 17.0625 3.296875 17.191406 C 4.515625 21.128906 8.257812 24 12.683594 24 C 18.097656 24 22.488281 19.707031 22.488281 14.410156 C 22.488281 9.371094 18.511719 5.238281 13.457031 4.851562 C 13.464844 4.613281 13.589844 4.144531 13.589844 4.144531 C 13.589844 4.144531 14.480469 1.984375 14.527344 1.523438 C 14.53125 1.492188 14.535156 1.460938 14.539062 1.425781 C 14.59375 0.925781 14.699219 0 13.902344 0 C 13.476562 0 13.277344 0.316406 13.050781 0.679688 C 12.964844 0.816406 12.871094 0.964844 12.761719 1.101562 C 11.972656 2.089844 10.644531 3.320312 9.890625 3.976562 C 8.296875 5.367188 6.730469 6.507812 5.820312 7.171875 C 5.40625 7.476562 5.125 7.679688 5.039062 7.765625 C 4.386719 8.402344 2.046875 12.621094 2.046875 12.621094 C 2.046875 12.621094 1.289062 13.976562 1.558594 14.253906 C 1.828125 14.527344 2.476562 14.464844 2.476562 14.464844 C 2.476562 14.464844 11.191406 12.464844 11.972656 12.304688 C 12.183594 12.265625 12.332031 12.238281 12.445312 12.222656 C 12.753906 12.167969 12.808594 12.160156 13.15625 11.949219 Z M 6.996094 9.378906 C 6.527344 9.824219 5.75 10.882812 5.75 10.882812 C 5.75 10.882812 7.195312 10.972656 7.988281 10.21875 C 8.78125 9.464844 8.601562 8.175781 8.601562 8.175781 C 8.601562 8.175781 7.464844 8.933594 6.996094 9.378906 Z M 6.996094 9.378906 "/></g></svg>');
 		addIcon('cycle-secondary-type', '<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 26 26" version="1.1"><g id="surface1"><path style=" stroke:currentColor;fill-rule:evenodd;fill:none;fill-opacity:1;" d="M 8.378906 22.394531 C 11.894531 22.394531 14.902344 20.441406 16.144531 17.667969 C 16.160156 17.636719 11.15625 18.96875 11.316406 18.5 C 11.386719 18.289062 14.453125 17.167969 16.691406 15.859375 C 17.972656 15.109375 18.566406 13.519531 18.566406 13.519531 C 18.566406 13.519531 16.402344 14.570312 15.308594 14.835938 C 13.101562 15.375 11.164062 15.316406 11.164062 15.257812 C 11.164062 15.136719 14.386719 14.527344 18.863281 11.796875 C 20.96875 10.511719 21.542969 8.300781 21.542969 8.300781 C 21.542969 8.300781 19.226562 9.679688 17.828125 10.136719 C 14.503906 11.21875 11.476562 11.542969 11.476562 11.394531 C 11.476562 11.082031 14.140625 10.351562 16.96875 8.980469 C 18.441406 8.269531 19.710938 7.335938 21.1875 6.300781 C 23.601562 4.609375 24 1.59375 24 1.59375 C 24 1.59375 21.617188 3.128906 20.457031 3.640625 C 15.664062 5.742188 11.429688 6.847656 8.378906 7.085938 C 3.769531 7.445312 0 10.660156 0 14.835938 C 0 19.011719 3.75 22.394531 8.378906 22.394531 Z M 8.378906 22.394531 "/></g></svg>');
+		addIcon('cycle-preset', '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 256 256"><path fill=currentColor opacity="1.000000" stroke="none" d="M243.517914,101.606964 C251.807251,140.867111 243.723602,175.908401 217.753143,206.057571 C196.818481,230.360672 169.783905,244.053741 137.765076,246.243790 C71.721527,250.761093 19.331234,202.748322 12.341545,143.763779 C6.422440,93.813644 31.015741,47.160252 75.623924,24.008842 C118.757599,1.622693 173.171921,9.246656 208.605103,42.348419 C225.987778,58.587334 237.710297,78.093155 243.517914,101.606964 M108.744705,33.142208 C57.593082,43.828785 23.517294,94.050583 32.598221,145.368912 C41.747906,197.075821 87.272911,231.268295 140.119919,226.125275 C193.110092,220.968323 233.115143,170.014328 226.292358,117.371567 C219.056595,61.542454 166.807602,21.620567 108.744705,33.142208 z"/><path fill=currentColor opacity="1.000000" stroke="none" d="M136.556793,61.273613 C135.221420,80.707474 141.722031,95.890984 157.255661,107.677345 C164.011978,112.803795 169.822708,119.664764 174.690765,126.688896 C184.525085,140.878860 182.804947,156.529205 171.061905,169.163589 C159.569885,181.527924 144.993042,189.039001 129.604660,195.219376 C126.232231,196.573807 122.784637,197.741089 119.916328,198.794525 C119.195549,191.471039 119.160332,184.287888 117.664635,177.422913 C115.038788,165.370819 106.769608,156.889191 98.250854,148.450333 C91.941422,142.200104 85.828560,135.315125 81.420662,127.678299 C73.760170,114.406258 76.602089,99.304268 87.139786,88.121582 C100.164482,74.299667 116.522514,66.011307 134.081894,59.727329 C134.703140,59.505001 135.747787,60.465721 136.556793,61.273613 M107.743614,126.801552 C103.469910,125.404617 99.196205,124.007675 94.001419,122.309662 C97.046341,129.567947 100.762016,134.306824 107.090012,136.879547 C113.551132,139.506378 119.979477,142.280136 126.186592,145.450760 C136.957520,150.952560 147.546951,156.809662 158.616318,162.733871 C160.496384,160.551544 162.478775,158.250412 164.736694,155.629471 C147.522476,142.015167 128.309448,133.935577 107.743614,126.801552 M111.435822,105.080589 C107.056480,103.489960 102.650757,101.967651 98.305130,100.289703 C93.846519,98.568138 92.773628,101.896271 91.517494,104.778847 C90.025993,108.201569 92.828606,108.431938 94.983711,109.332115 C113.681709,117.142075 132.390778,124.928658 150.998077,132.950638 C156.351578,135.258636 161.384888,138.309357 167.089462,141.293930 C166.434845,133.920410 163.158844,129.306793 157.275421,126.540855 C142.239838,119.472290 127.185043,112.444626 111.435822,105.080589 M114.570343,83.010376 C112.083847,85.003014 109.597359,86.995651 106.231102,89.693321 C115.957306,93.638893 124.429878,97.075920 133.668259,100.823608 C130.809372,92.644127 128.321930,85.527420 125.623299,77.806465 C122.047211,79.488853 118.640793,81.091415 114.570343,83.010376 M126.962753,165.614624 C128.942307,170.304520 130.921844,174.994415 133.079834,180.107086 C138.028748,177.224625 142.469559,174.638107 147.725525,171.576797 C139.674362,167.014633 132.729538,163.079346 125.784698,159.144073 C125.454407,159.454544 125.124123,159.765015 124.793839,160.075485 C125.434830,161.684570 126.075813,163.293655 126.962753,165.614624 z"/></svg>')
 
 		this.addRibbonIcon('cycle-primary-type', 'Cycle primary type', async () => {
 			await this.cycleType('primary');
 		});
-		this.addRibbonIcon('cycle-secondary-type', 'Cycle decondary type', async () => {
+		this.addRibbonIcon('cycle-secondary-type', 'Cycle secondary type', async () => {
 			await this.cycleType('secondary');
 		});
+		this.addRibbonIcon('cycle-preset', 'Cycle presets', async () => {
+			await this.cyclePreset();
+		});
+
 		// Dragon symbol controls primary types
 		this.addCommand({
 			id: 'cycle-primary-type',
@@ -138,6 +149,13 @@ export default class HiddenGrotto extends Plugin {
 			icon: 'cycle-secondary-type',
 			callback: async () => await this.cycleType('secondary'),
 		});
+		this.addCommand({
+			id: 'cycle-preset-override',
+			name: 'Cycle preset override',
+			icon: 'cycle-preset',
+			callback: async () => await this.cyclePreset(),
+		});
+
 		this.addSettingTab(new PokeSettingsTab(this.app, this));
 	}
 
@@ -175,6 +193,25 @@ export default class HiddenGrotto extends Plugin {
 		this.settings.presetOverride = "";
 		await this.saveSettings();
 	}
+	async cyclePreset() {
+	const presets = this.getAvailablePresets();
+	if (presets.length === 0) {
+		new Notice("No available presets found.");
+		return;
+	}
+
+	const currentIndex = presets.indexOf(this.settings.presetOverride);
+	const nextIndex = (currentIndex + 1) % presets.length;
+	const nextPreset = presets[nextIndex];
+
+	this.settings.presetOverride = nextPreset;
+	await this.saveSettings();
+
+	const capitalizedPreset = nextPreset.charAt(0).toUpperCase() + nextPreset.slice(1);
+	new Notice(`Preset changed to: ${capitalizedPreset}`);
+}
+
+
 	onunload() {
 		this.removeTypeClasses();
 	}
@@ -186,12 +223,18 @@ export default class HiddenGrotto extends Plugin {
 		document.body.style.setProperty('--grotto-toolbar-rows', `${this.settings.mobileToolbarheight}`);
 		const tableBorders = this.settings.tableStyle ? 'separate' : 'collapse';
 		document.body.style.setProperty('--grotto-table-border-style', tableBorders);
+		const tableColors = this.settings.tableColor ? 'var(--grotto-accent-1)' : 'var(--background-primary)';
+		document.body.style.setProperty('--table-background', tableColors);
+		const tableWidth = this.settings.tableWidth ? 'max-content' : 'fit-content';
+		document.body.style.setProperty('--grotto-table-cell-width', tableWidth);
 		const pointerEvents = this.settings.tagInteraction ? 'none' : 'auto';
 		document.body.style.setProperty('--grotto-tag-pointer-events', pointerEvents);
-		const mobileStatus = this.settings.mobileStatusbar ? 'var(--grotto-8)' : 'var(--background-primary)';
+		const mobileStatus = this.settings.mobileStatusbar ? 'var(--grotto-accent-1)' : 'var(--background-primary)';
 		document.body.style.setProperty('--system-status-background', mobileStatus);
-		const blockquoteBorder = this.settings.blockquoteBorder ? 'var(--grotto-8)' : 'var(--text-normal)';
-		document.body.style.setProperty('--grotto-blockquote-border-color', blockquoteBorder);
+		const blockquoteBorder = this.settings.blockquoteBorder ? 'var(--grotto-accent-1)' : 'var(--text-normal)';
+		document.body.style.setProperty('--blockquote-border-color', blockquoteBorder);
+		const blockquoteBackground = this.settings.blockquoteBackground ? 'var(--grotto-accent-1)' : 'var(--background-primary)';
+		document.body.style.setProperty('--blockquote-background-color', blockquoteBackground);
 		const calloutBackground = this.settings.calloutBackground ? 'var(--grotto-8)' : 'var(--background-primary)';
 		document.body.style.setProperty('--grotto-callout-background-color', calloutBackground);
 		document.body.style.setProperty('--embed-max-height', `${this.settings.embedHeight}px`);
@@ -202,7 +245,7 @@ export default class HiddenGrotto extends Plugin {
 			document.body.classList.add(presetClass);
 		} else {
 			document.body.classList.add(this.settings.primaryType);
-			document.body.classList.add(this.settings.secondaryType);
+			document.body.classList.add(this.settings.secondaryType); 
 		}
 	}
 	// Check for presets in the css and theme files to display in the settings tab
@@ -404,6 +447,28 @@ class PokeSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+		new Setting(containerEl)
+			.setName('Table Background Accent')
+			.setDesc('Enable to use an accented border for tables')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.tableColor)
+					.onChange(async (value) => {
+						this.plugin.settings.tableColor = value;
+						await this.plugin.saveSettings();
+					});
+			});
+		new Setting(containerEl)
+			.setName('Table Cell Width')
+			.setDesc('Enable to maximize table cell width')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.tableWidth)
+					.onChange(async (value) => {
+						this.plugin.settings.tableWidth = value;
+						await this.plugin.saveSettings();
+					});
+			});
 		// Blockquote Settings
 		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Blockquote Controls', cls: 'setting-item-name' });
 		new Setting(containerEl)
@@ -414,6 +479,17 @@ class PokeSettingsTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.blockquoteBorder)
 					.onChange(async (value) => {
 						this.plugin.settings.blockquoteBorder = value;
+						await this.plugin.saveSettings();
+					});
+			});
+		new Setting(containerEl)
+			.setName('Blockquote Background Accent')
+			.setDesc('Enable to use an accented background for blockquotes')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.blockquoteBackground)
+					.onChange(async (value) => {
+						this.plugin.settings.blockquoteBackground = value;
 						await this.plugin.saveSettings();
 					});
 			});
