@@ -16,6 +16,7 @@ interface PokeTypeSettings {
 	blockquoteBorder: boolean;
 	blockquoteBackground: boolean;
 	calloutBackground: boolean;
+	calloutIcon: boolean;
 	embedHeight: number;
 	embedTitle: boolean;
 }
@@ -36,8 +37,8 @@ const DEFAULT_SETTINGS: PokeTypeSettings = {
 	blockquoteBorder: false,
 	blockquoteBackground: false,
 	calloutBackground: false,
+	calloutIcon: false,
 	embedHeight: 4000,
-	embedTitle: true,
 }
 
 const pokemonTypes = ['normal', 'fighting', 'flying', 'poison', 'ground', 'rock', 'bug', 'ghost', 'steel', 'fire', 'water', 'grass', 'electric', 'psychic', 'ice', 'dragon', 'dark', 'fairy'] as const;
@@ -235,11 +236,11 @@ export default class HiddenGrotto extends Plugin {
 		document.body.style.setProperty('--blockquote-border-color', blockquoteBorder);
 		const blockquoteBackground = this.settings.blockquoteBackground ? 'var(--grotto-accent-1)' : 'var(--background-primary)';
 		document.body.style.setProperty('--blockquote-background-color', blockquoteBackground);
-		const calloutBackground = this.settings.calloutBackground ? 'var(--grotto-8)' : 'var(--background-primary)';
+		const calloutBackground = this.settings.calloutBackground ? 'var(--grotto-accent-1)' : 'var(--background-primary)';
 		document.body.style.setProperty('--grotto-callout-background-color', calloutBackground);
+		const calloutIcon = this.settings.calloutIcon ? 'block' : 'none';
+		document.body.style.setProperty('--grotto-callout-icon', calloutIcon);
 		document.body.style.setProperty('--embed-max-height', `${this.settings.embedHeight}px`);
-		const embedTitleDisplay = this.settings.embedTitle ? 'auto' : 'none';
-		document.body.style.setProperty('--grotto-embed-title-display', embedTitleDisplay);
 		if (this.settings.presetOverride && this.settings.presetOverride.trim() !== "") {
 			const presetClass = `preset-${this.settings.presetOverride.trim().toLowerCase()}`;
 			document.body.classList.add(presetClass);
@@ -504,6 +505,17 @@ class PokeSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+		new Setting(containerEl)
+			.setName('Callout Icon')
+			.setDesc('Enable to use display callout icons')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.calloutIcon)
+					.onChange(async (value) => {
+						this.plugin.settings.calloutIcon = value;
+						await this.plugin.saveSettings();
+					});
+			});
 		// Embed Settings
 		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Embed Controls', cls: 'setting-item-name' });
 		// Embed Max Height
@@ -538,17 +550,6 @@ class PokeSettingsTab extends PluginSettingTab {
 					this.display();
 				});
 		});
-		new Setting(containerEl)
-			.setName('Embed Title')
-			.setDesc('Enable titles in embeds')
-			.addToggle(toggle => {
-				toggle
-					.setValue(this.plugin.settings.embedTitle)
-					.onChange(async (value) => {
-						this.plugin.settings.embedTitle = value;
-						await this.plugin.saveSettings();
-					});
-			});
 		// Mobile Settings
 		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Mobile Controls', cls: 'setting-item-name' });
 		// Mobile Toolbar
