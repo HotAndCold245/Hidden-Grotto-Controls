@@ -15,6 +15,7 @@ interface GrottoSettings {
 	calloutBackground: boolean;
 	calloutIcon: boolean;
 	embedHeight: number;
+	embedTitle: boolean;
 	calendarInteraction: boolean;
 }
 
@@ -33,6 +34,7 @@ const DEFAULT_SETTINGS: GrottoSettings = {
 	calloutBackground: false,
 	calloutIcon: false,
 	embedHeight: 4000,
+	embedTitle: false,
 	calendarInteraction: false,
 }
 
@@ -114,7 +116,8 @@ export default class HiddenGrotto extends Plugin {
 		'font-weight', '--file-line-width', '--grotto-toolbar-rows', '--grotto-table-border-style',
 		'--table-background', '--grotto-table-cell-width', '--grotto-tag-pointer-events',
 		'--system-status-background', '--blockquote-border-color', '--blockquote-background-color',
-		'--grotto-callout-background-color', '--grotto-callout-icon', '--embed-max-height'
+		'--grotto-callout-background-color', '--grotto-callout-icon', '--embed-max-height', 
+		'--grotto-embed-title'
 	];
 	variables.forEach(varName => document.body.style.removeProperty(varName));
 }
@@ -149,6 +152,8 @@ export default class HiddenGrotto extends Plugin {
 		const calloutIcon = this.settings.calloutIcon ? 'block' : 'none';
 		document.body.style.setProperty('--grotto-callout-icon', calloutIcon);
 		document.body.style.setProperty('--embed-max-height', `${this.settings.embedHeight}px`);
+		const embeddisplayTitle = this.settings.embedTitle ? 'block' : 'none';
+		document.body.style.setProperty('--grotto-embed-title', embeddisplayTitle);
 		const calendarpointerEvents = this.settings.calendarInteraction ? 'auto' : 'none';
 		document.body.style.setProperty('--grotto-calendar-pointer-events', calendarpointerEvents);
 		if (this.settings.presetOverride && this.settings.presetOverride.trim() !== "") {
@@ -322,7 +327,7 @@ class GrottoSettingsTab extends PluginSettingTab {
 			});
 		new Setting(containerEl)
 			.setName('Table Background Accent')
-			.setDesc('Enable to use an accented border for tables')
+			.setDesc('Enable to use an accented background for tables')
 			.addToggle(toggle => {
 				toggle
 					.setValue(this.plugin.settings.tableColor)
@@ -379,7 +384,7 @@ class GrottoSettingsTab extends PluginSettingTab {
 			});
 		new Setting(containerEl)
 			.setName('Callout Icon')
-			.setDesc('Enable to use display callout icons')
+			.setDesc('Enable to display callout icons')
 			.addToggle(toggle => {
 				toggle
 					.setValue(this.plugin.settings.calloutIcon)
@@ -422,6 +427,17 @@ class GrottoSettingsTab extends PluginSettingTab {
 					this.display();
 				});
 		});
+		new Setting(containerEl)
+			.setName('Embed Title')
+			.setDesc('Enable to display embed title')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.embedTitle)
+					.onChange(async (value) => {
+						this.plugin.settings.embedTitle = value;
+						await this.plugin.saveSettings();
+					});
+			});
 		// Mobile Settings
 		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Mobile Controls', cls: 'setting-item-name' });
 		// Mobile Toolbar
