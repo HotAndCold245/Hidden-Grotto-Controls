@@ -5,5 +5,6 @@
 	"minAppVersion": "0.15.0",
 	"description": "Settings plugin for the Hidden Grotto theme",
 	"author": "HotAndCold",
+	"authorUrl": "https://github.com/HotAndCold245/Hidden-Grotto-Controls",
 	"isDesktopOnly": false
 }
