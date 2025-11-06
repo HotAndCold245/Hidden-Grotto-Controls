@@ -5,6 +5,7 @@ The settings plugin for Hidden Grotto. The following settings can be controlled 
 ### Text Controls
 - Font Weight
 - File Line Width (When readable line length is enabled from the Editor settings menu)
+- Formatted Text Accent (Bold, Italic, and Comments)
 ### Table Controls
 - Table Border Style
 - Table Background Accent
@@ -23,5 +24,6 @@ The settings plugin for Hidden Grotto. The following settings can be controlled 
 - System Status Bar Accent
 ### Calendar Controls
 - Calendar Interaction
+- Calendar Style
 
 #Note: More control options will be added later
