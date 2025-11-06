@@ -4,6 +4,7 @@ interface GrottoSettings {
 	presetOverride: string;
 	fontWeight: number;
 	fontWidth: number;
+	formattedAccent: boolean;
 	tagInteraction: boolean;
 	tableStyle: boolean;
 	tableColor: boolean;
@@ -17,12 +18,14 @@ interface GrottoSettings {
 	embedHeight: number;
 	embedTitle: boolean;
 	calendarInteraction: boolean;
+	calendarStyle: boolean;
 }
 
 const DEFAULT_SETTINGS: GrottoSettings = {
 	presetOverride: "",
 	fontWeight: 400,
 	fontWidth: 100,
+	formattedAccent: true,
 	tagInteraction: false,
 	tableStyle: false,
 	tableColor: false,
@@ -36,6 +39,7 @@ const DEFAULT_SETTINGS: GrottoSettings = {
 	embedHeight: 4000,
 	embedTitle: false,
 	calendarInteraction: false,
+	calendarStyle: false,
 }
 
 class PresetSuggestModal extends SuggestModal<string> {
@@ -132,6 +136,16 @@ export default class HiddenGrotto extends Plugin {
 
 		document.body.style.setProperty('font-weight', this.settings.fontWeight.toString());
 		document.body.style.setProperty('--file-line-width', `${this.settings.fontWidth}%`);
+		if (this.settings.formattedAccent) {
+			document.body.style.setProperty('--grotto-bold-color', 'var(--grotto-accent-1)');
+			document.body.style.setProperty('--grotto-italic-color', 'var(--grotto-accent-1)');
+			document.body.style.setProperty('--grotto-comment-color', 'var(--grotto-accent-1)');
+		}
+		else {
+			document.body.style.setProperty('--grotto-bold-color', 'var(--text-normal)');
+			document.body.style.setProperty('--grotto-italic-color', 'var(--text-normal)');
+			document.body.style.setProperty('--grotto-comment-color', 'var(--text-normal)');
+		}
 		document.body.style.setProperty('--grotto-toolbar-rows', `${this.settings.mobileToolbarheight}`);
 		const tableBorders = this.settings.tableStyle ? 'separate' : 'collapse';
 		document.body.style.setProperty('--grotto-table-border-style', tableBorders);
@@ -159,6 +173,20 @@ export default class HiddenGrotto extends Plugin {
 		if (this.settings.presetOverride && this.settings.presetOverride.trim() !== "") {
 			const presetClass = `preset-${this.settings.presetOverride.trim().toLowerCase()}`;
 			document.body.classList.add(presetClass);
+		}
+		if (this.settings.calendarStyle) {
+			document.body.style.setProperty('--grotto-calendar-border-color', 'transparent');
+			document.body.style.setProperty('--grotto-calendar-dayofweek-color', 'var(--grotto-calendar-color)');
+			document.body.style.setProperty('--grotto-calendar-dayofweek-background-color', 'transparent');
+			document.body.style.setProperty('--grotto-calendar-weekend-border-color', 'var(--grotto-accent-1)');
+			document.body.style.setProperty('--grotto-calendar-dayofweek-border-width', '1px');
+		}
+		else {
+			document.body.style.setProperty('--grotto-calendar-border-color', 'var(--grotto-accent-1)');
+			document.body.style.setProperty('--grotto-calendar-dayofweek-color', 'var(--grotto-night-0)');
+			document.body.style.setProperty('--grotto-calendar-dayofweek-background-color', 'var(--grotto-accent-1)');
+			document.body.style.setProperty('--grotto-calendar-weekend-border-color', 'transparent');
+			document.body.style.setProperty('--grotto-calendar-dayofweek-border-width', '0px');
 		}
 	}
 	// Check for presets in the css and theme files to display in the settings tab
@@ -265,7 +293,6 @@ class GrottoSettingsTab extends PluginSettingTab {
 
 			return slider;
 		});
-
 		fontWeightSetting.addExtraButton(btn => {
 			btn.setIcon('reset')
 				.setTooltip('Reset to default')
@@ -281,11 +308,9 @@ class GrottoSettingsTab extends PluginSettingTab {
 		const fontWidthSetting = new Setting(containerEl)
 			.setName("File Line Width")
 			.setDesc("Adjust the width of the viewable lines of text");
-
 		const currentFontWidthEl = document.createElement('div');
 		currentFontWidthEl.textContent = `Current width: ${this.plugin.settings.fontWidth || 100}%`;
 		fontWidthSetting.descEl.appendChild(currentFontWidthEl);
-
 		fontWidthSetting.addSlider(slider => {
 			slider
 				.setLimits(50, 100, 5)
@@ -299,7 +324,6 @@ class GrottoSettingsTab extends PluginSettingTab {
 
 			return slider;
 		});
-
 		fontWidthSetting.addExtraButton(btn => {
 			btn.setIcon('reset')
 				.setTooltip('Reset to default')
@@ -311,6 +335,17 @@ class GrottoSettingsTab extends PluginSettingTab {
 					this.display();
 				});
 		});
+		new Setting(containerEl)
+			.setName('Formatted Text Accent')
+			.setDesc('Enable to use an accented bold, italic, and commented text')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.formattedAccent)
+					.onChange(async (value) => {
+						this.plugin.settings.formattedAccent = value;
+						await this.plugin.saveSettings();
+					});
+			});
 		// Table Settings
 		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Table Controls', cls: 'setting-item-name' });
 		// Table border style
@@ -503,12 +538,23 @@ class GrottoSettingsTab extends PluginSettingTab {
 		// Calendar Interaction
 		new Setting(containerEl)
 			.setName('Calendar Interaction')
-			.setDesc('Enable calendar daily note access when clicking on a date')
+			.setDesc('Enable to allow daily note access when clicking on a date')
 			.addToggle(toggle => {
 				toggle
 					.setValue(this.plugin.settings.calendarInteraction)
 					.onChange(async (value) => {
 						this.plugin.settings.calendarInteraction = value;
+						await this.plugin.saveSettings();
+					});
+			});
+		new Setting(containerEl)
+			.setName('Calendar Style')
+			.setDesc('Enable to use an alternate calendar style')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.calendarStyle)
+					.onChange(async (value) => {
+						this.plugin.settings.calendarStyle = value;
 						await this.plugin.saveSettings();
 					});
 			});
