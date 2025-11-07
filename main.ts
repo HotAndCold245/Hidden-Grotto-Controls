@@ -12,7 +12,7 @@ interface GrottoSettings {
 	mobileStatusbar: boolean;
 	mobileToolbarheight: number;
 	blockquoteBorder: boolean;
-	blockquoteBackground: boolean;
+	blockquoteStyle: boolean;
 	calloutBackground: boolean;
 	calloutIcon: boolean;
 	embedHeight: number;
@@ -33,7 +33,7 @@ const DEFAULT_SETTINGS: GrottoSettings = {
 	mobileStatusbar: false,
 	mobileToolbarheight: 2,
 	blockquoteBorder: false,
-	blockquoteBackground: false,
+	blockquoteStyle: false,
 	calloutBackground: false,
 	calloutIcon: false,
 	embedHeight: 4000,
@@ -159,8 +159,16 @@ export default class HiddenGrotto extends Plugin {
 		document.body.style.setProperty('--system-status-background', mobileStatus);
 		const blockquoteBorder = this.settings.blockquoteBorder ? 'var(--color-accent)' : 'var(--text-normal)';
 		document.body.style.setProperty('--blockquote-border-color', blockquoteBorder);
-		const blockquoteBackground = this.settings.blockquoteBackground ? 'var(--color-accent)' : 'var(--background-primary)';
-		document.body.style.setProperty('--blockquote-background-color', blockquoteBackground);
+		if (this.settings.blockquoteStyle) {
+			document.body.style.setProperty('--blockquote-border-thickness', '0px');
+			document.body.style.setProperty('--grotto-blockquote-style', 'italic');
+			document.body.style.setProperty('--grotto-blockquote-alignment', 'center');
+		}
+		else {
+			document.body.style.setProperty('--blockquote-border-thickness', '2px');
+			document.body.style.setProperty('--grotto-blockquote-style', 'normal');
+			document.body.style.setProperty('--grotto-blockquote-alignment', 'start');
+		}
 		const calloutBackground = this.settings.calloutBackground ? 'var(--color-accent)' : 'var(--background-primary)';
 		document.body.style.setProperty('--grotto-callout-background-color', calloutBackground);
 		const calloutIcon = this.settings.calloutIcon ? 'block' : 'none';
@@ -396,13 +404,13 @@ class GrottoSettingsTab extends PluginSettingTab {
 					});
 			});
 		new Setting(containerEl)
-			.setName('Blockquote Background Accent')
-			.setDesc('Enable to use an accented background for blockquotes')
+			.setName('Blockquote Style')
+			.setDesc('Enable to use an alternate blockquote style')
 			.addToggle(toggle => {
 				toggle
-					.setValue(this.plugin.settings.blockquoteBackground)
+					.setValue(this.plugin.settings.blockquoteStyle)
 					.onChange(async (value) => {
-						this.plugin.settings.blockquoteBackground = value;
+						this.plugin.settings.blockquoteStyle = value;
 						await this.plugin.saveSettings();
 					});
 			});
