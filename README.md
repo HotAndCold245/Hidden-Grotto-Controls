@@ -12,7 +12,7 @@ The settings plugin for Hidden Grotto. The following settings can be controlled 
 - Table Cell Width
 ### Blockquote Controls
 - Blockquote Border Accent
-- Blockquote Background Accent
+- Blockquote Style
 - Callout Background Accent
 - Callout Icon
 ### Embed Controls
