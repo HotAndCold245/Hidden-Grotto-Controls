@@ -19,6 +19,7 @@ interface GrottoSettings {
 	embedTitle: boolean;
 	calendarInteraction: boolean;
 	calendarStyle: boolean;
+	privacyBlur: boolean;
 }
 
 const DEFAULT_SETTINGS: GrottoSettings = {
@@ -40,6 +41,7 @@ const DEFAULT_SETTINGS: GrottoSettings = {
 	embedTitle: false,
 	calendarInteraction: false,
 	calendarStyle: false,
+	privacyBlur: false,
 }
 
 class PresetSuggestModal extends SuggestModal<string> {
@@ -72,8 +74,10 @@ export default class HiddenGrotto extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		this.applySettingsToDOM();
-		// Custom icons for the ribbon buttons
+		// Custom icon for the preset cycling
 		addIcon('cycle-preset', '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 256 256"><path fill=currentColor opacity="1.000000" stroke="none" d="M243.517914,101.606964 C251.807251,140.867111 243.723602,175.908401 217.753143,206.057571 C196.818481,230.360672 169.783905,244.053741 137.765076,246.243790 C71.721527,250.761093 19.331234,202.748322 12.341545,143.763779 C6.422440,93.813644 31.015741,47.160252 75.623924,24.008842 C118.757599,1.622693 173.171921,9.246656 208.605103,42.348419 C225.987778,58.587334 237.710297,78.093155 243.517914,101.606964 M108.744705,33.142208 C57.593082,43.828785 23.517294,94.050583 32.598221,145.368912 C41.747906,197.075821 87.272911,231.268295 140.119919,226.125275 C193.110092,220.968323 233.115143,170.014328 226.292358,117.371567 C219.056595,61.542454 166.807602,21.620567 108.744705,33.142208 z"/><path fill=currentColor opacity="1.000000" stroke="none" d="M136.556793,61.273613 C135.221420,80.707474 141.722031,95.890984 157.255661,107.677345 C164.011978,112.803795 169.822708,119.664764 174.690765,126.688896 C184.525085,140.878860 182.804947,156.529205 171.061905,169.163589 C159.569885,181.527924 144.993042,189.039001 129.604660,195.219376 C126.232231,196.573807 122.784637,197.741089 119.916328,198.794525 C119.195549,191.471039 119.160332,184.287888 117.664635,177.422913 C115.038788,165.370819 106.769608,156.889191 98.250854,148.450333 C91.941422,142.200104 85.828560,135.315125 81.420662,127.678299 C73.760170,114.406258 76.602089,99.304268 87.139786,88.121582 C100.164482,74.299667 116.522514,66.011307 134.081894,59.727329 C134.703140,59.505001 135.747787,60.465721 136.556793,61.273613 M107.743614,126.801552 C103.469910,125.404617 99.196205,124.007675 94.001419,122.309662 C97.046341,129.567947 100.762016,134.306824 107.090012,136.879547 C113.551132,139.506378 119.979477,142.280136 126.186592,145.450760 C136.957520,150.952560 147.546951,156.809662 158.616318,162.733871 C160.496384,160.551544 162.478775,158.250412 164.736694,155.629471 C147.522476,142.015167 128.309448,133.935577 107.743614,126.801552 M111.435822,105.080589 C107.056480,103.489960 102.650757,101.967651 98.305130,100.289703 C93.846519,98.568138 92.773628,101.896271 91.517494,104.778847 C90.025993,108.201569 92.828606,108.431938 94.983711,109.332115 C113.681709,117.142075 132.390778,124.928658 150.998077,132.950638 C156.351578,135.258636 161.384888,138.309357 167.089462,141.293930 C166.434845,133.920410 163.158844,129.306793 157.275421,126.540855 C142.239838,119.472290 127.185043,112.444626 111.435822,105.080589 M114.570343,83.010376 C112.083847,85.003014 109.597359,86.995651 106.231102,89.693321 C115.957306,93.638893 124.429878,97.075920 133.668259,100.823608 C130.809372,92.644127 128.321930,85.527420 125.623299,77.806465 C122.047211,79.488853 118.640793,81.091415 114.570343,83.010376 M126.962753,165.614624 C128.942307,170.304520 130.921844,174.994415 133.079834,180.107086 C138.028748,177.224625 142.469559,174.638107 147.725525,171.576797 C139.674362,167.014633 132.729538,163.079346 125.784698,159.144073 C125.454407,159.454544 125.124123,159.765015 124.793839,160.075485 C125.434830,161.684570 126.075813,163.293655 126.962753,165.614624 z"/></svg>')
+		// Custom Icon for privacy mode
+		addIcon('blur-toggle', '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-off-icon lucide-eye-off"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>')
 
 		this.addRibbonIcon('cycle-preset', 'Cycle presets', async () => {
 			await this.cyclePreset();
@@ -85,6 +89,25 @@ export default class HiddenGrotto extends Plugin {
 			icon: 'cycle-preset',
 			callback: async () => await this.cyclePreset(),
 		});
+
+		this.addCommand({
+			id: 'toggle-privacy-blur',
+			name: 'Toggle Privacy Blur',
+			icon: 'blur-toggle',
+			callback: async () => {
+				this.settings.privacyBlur = !this.settings.privacyBlur;
+				await this.saveSettings();
+				new Notice(this.settings.privacyBlur ? 'Privacy blur enabled' : 'Privacy blur disabled');
+			},
+		});
+
+		// Add privacy blur toggle ribbon button
+		this.addRibbonIcon('blur-toggle', 'Toggle Privacy Blur', async () => {
+			this.settings.privacyBlur = !this.settings.privacyBlur;
+			await this.saveSettings();
+			new Notice(this.settings.privacyBlur ? 'Privacy blur enabled' : 'Privacy blur disabled');
+		});
+
 
 		this.addSettingTab(new GrottoSettingsTab(this.app, this));
 	}
@@ -116,16 +139,15 @@ export default class HiddenGrotto extends Plugin {
 		new Notice(`Preset changed to: ${capitalizedPreset}`);
 	}
 	private resetDOMStyles() {
-	const variables = [
-		'font-weight', '--file-line-width', '--grotto-toolbar-rows', '--grotto-table-border-style',
-		'--table-background', '--grotto-table-cell-width', '--grotto-tag-pointer-events',
-		'--system-status-background', '--blockquote-border-color', '--blockquote-background-color',
-		'--grotto-callout-background-color', '--grotto-callout-icon', '--embed-max-height', 
-		'--grotto-embed-title'
-	];
-	variables.forEach(varName => document.body.style.removeProperty(varName));
-}
-
+		const variables = [
+			'font-weight', '--file-line-width', '--grotto-toolbar-rows', '--grotto-table-border-style',
+			'--table-background', '--grotto-table-cell-width', '--grotto-tag-pointer-events',
+			'--system-status-background', '--blockquote-border-color', '--blockquote-background-color',
+			'--grotto-callout-background-color', '--grotto-callout-icon', '--embed-max-height',
+			'--grotto-embed-title'
+		];
+		variables.forEach(varName => document.body.style.removeProperty(varName));
+	}
 
 	onunload() {
 		this.removePresets();
@@ -195,6 +217,12 @@ export default class HiddenGrotto extends Plugin {
 			document.body.style.setProperty('--grotto-calendar-dayofweek-background-color', 'var(--grotto-accent-1)');
 			document.body.style.setProperty('--grotto-calendar-weekend-border-color', 'transparent');
 			document.body.style.setProperty('--grotto-calendar-dayofweek-border-width', '0px');
+		}
+		if (this.settings.privacyBlur) {
+			document.body.style.setProperty('--grotto-blur', '4px');
+		}
+		else {
+			document.body.style.setProperty('--grotto-blur', '0px');
 		}
 	}
 	// Check for presets in the css and theme files to display in the settings tab
@@ -555,6 +583,7 @@ class GrottoSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+		// Calendar Style
 		new Setting(containerEl)
 			.setName('Calendar Style')
 			.setDesc('Enable to use an alternate calendar style')
@@ -563,6 +592,20 @@ class GrottoSettingsTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.calendarStyle)
 					.onChange(async (value) => {
 						this.plugin.settings.calendarStyle = value;
+						await this.plugin.saveSettings();
+					});
+			});
+		// Privacy Settings
+		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Privacy Controls', cls: 'setting-item-name' });
+		// Blurred View
+		new Setting(containerEl)
+			.setName('Blurred View')
+			.setDesc('Enable to obscure everything from prying eyes')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.privacyBlur)
+					.onChange(async (value) => {
+						this.plugin.settings.privacyBlur = value;
 						await this.plugin.saveSettings();
 					});
 			});
