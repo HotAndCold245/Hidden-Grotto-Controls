@@ -25,5 +25,7 @@ The settings plugin for Hidden Grotto. The following settings can be controlled 
 ### Calendar Controls
 - Calendar Interaction
 - Calendar Style
+### Privacy Controls
+- Blurred View
 
 #Note: More control options will be added later
