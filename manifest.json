@@ -1,6 +1,6 @@
 {
-	"id": "hidden-grotto-theme-controls",
-	"name": "Hidden Grotto Controls",
+	"id": "hidden-grotto-theme-settings",
+	"name": "Hidden Grotto Settings",
 	"version": "1.0.7",
 	"minAppVersion": "0.15.0",
 	"description": "Settings plugin for the Hidden Grotto theme",
