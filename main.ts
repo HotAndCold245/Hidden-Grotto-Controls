@@ -19,6 +19,7 @@ interface GrottoSettings {
 	embedTitle: boolean;
 	calendarInteraction: boolean;
 	calendarStyle: boolean;
+	privacyRedacted: boolean;
 	privacyBlur: boolean;
 }
 
@@ -41,6 +42,7 @@ const DEFAULT_SETTINGS: GrottoSettings = {
 	embedTitle: false,
 	calendarInteraction: false,
 	calendarStyle: false,
+	privacyRedacted: false,
 	privacyBlur: false,
 }
 
@@ -217,6 +219,18 @@ export default class HiddenGrotto extends Plugin {
 			document.body.style.setProperty('--grotto-calendar-dayofweek-background-color', 'var(--grotto-accent-1)');
 			document.body.style.setProperty('--grotto-calendar-weekend-border-color', 'transparent');
 			document.body.style.setProperty('--grotto-calendar-dayofweek-border-width', '0px');
+		}
+		if (this.settings.privacyRedacted) {
+			document.body.style.setProperty('--font-interface', 'var(--grotto-redacted)');
+			document.body.style.setProperty('--font-text', 'var(--grotto-redacted)');
+			document.body.style.setProperty('--font-print', 'var(--grotto-redacted)');
+			document.body.style.setProperty('--font-monospace', 'var(--grotto-redacted)');
+		}
+		else {
+			document.body.style.setProperty('--font-interface', 'var(--font-interface-override)');
+			document.body.style.setProperty('--font-text', 'var(--font-text-override)');
+			document.body.style.setProperty('--font-print', 'var(--font-print-override)');
+			document.body.style.setProperty('--font-monospace', 'var(--font-monospace-override)');
 		}
 		if (this.settings.privacyBlur) {
 			document.body.style.setProperty('--grotto-blur', '4px');
@@ -597,6 +611,18 @@ class GrottoSettingsTab extends PluginSettingTab {
 			});
 		// Privacy Settings
 		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Privacy Controls', cls: 'setting-item-name' });
+		// Redacted Text
+		new Setting(containerEl)
+			.setName('Redacted Text')
+			.setDesc('Enable to redact all the text from prying eyes')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.privacyRedacted)
+					.onChange(async (value) => {
+						this.plugin.settings.privacyRedacted = value;
+						await this.plugin.saveSettings();
+					});
+			});
 		// Blurred View
 		new Setting(containerEl)
 			.setName('Blurred View')
