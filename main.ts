@@ -59,7 +59,7 @@ class PresetSuggestModal extends SuggestModal<string> {
 		);
 	}
 	renderSuggestion(preset: string, el: HTMLElement) {
-		el.createEl('div', { text: preset.charAt(0).toUpperCase() + preset.slice(1) });
+		el.createEl('div', { text: prettifyPresetName(preset) });
 	}
 	onChooseSuggestion(preset: string, evt: MouseEvent | KeyboardEvent) {
 		this.onChoose(preset);
@@ -68,6 +68,14 @@ class PresetSuggestModal extends SuggestModal<string> {
 		super.onOpen();
 		this.containerEl.classList.add("hidden-grotto-presets");
 	}
+}
+
+
+function prettifyPresetName(name: string): string {
+	return name
+		.split('-')
+		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
 }
 
 export default class HiddenGrotto extends Plugin {
@@ -137,8 +145,7 @@ export default class HiddenGrotto extends Plugin {
 		this.settings.presetOverride = nextPreset;
 		await this.saveSettings();
 
-		const capitalizedPreset = nextPreset.charAt(0).toUpperCase() + nextPreset.slice(1);
-		new Notice(`Preset changed to: ${capitalizedPreset}`);
+		new Notice(`Preset changed to: ${prettifyPresetName(nextPreset)}`);
 	}
 	private resetDOMStyles() {
 		const variables = [
@@ -149,6 +156,9 @@ export default class HiddenGrotto extends Plugin {
 			'--grotto-embed-title'
 		];
 		variables.forEach(varName => document.body.style.removeProperty(varName));
+	}
+	refreshPresetCache(): void {
+		this.cachedPresets = null;
 	}
 
 	onunload() {
@@ -273,29 +283,24 @@ class GrottoSettingsTab extends PluginSettingTab {
 		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Color Controls', cls: 'setting-item-name' });
 		// Presets
 		const availablePresets = this.plugin.getAvailablePresets();
-		const displayPresets = availablePresets.map(name =>
-			name.charAt(0).toUpperCase() + name.slice(1)
-		);
+		const displayPresets = availablePresets.map(prettifyPresetName);
 		let presetInfoText = displayPresets.length > 0
 			? `Available presets: ${displayPresets.join(', ')}`
 			: `No preset classes found in loaded stylesheets.`;
-
 		new Setting(containerEl)
 			.setName("Presets")
 			.setDesc(createFragment(frag => {
 				frag.appendText("Select a custom preset");
 				frag.appendChild(document.createElement("br"));
-
-				const presetsLine = document.createElement("div"); // was <small>
-				// Removed: presetsLine.style.opacity = '0.7';
+				const presetsLine = document.createElement("div");
 				presetsLine.textContent = presetInfoText;
-
 				frag.appendChild(presetsLine);
 			}))
 			.addButton(button => {
 				const currentPreset = this.plugin.settings.presetOverride || "None";
-				button.setButtonText(currentPreset.charAt(0).toUpperCase() + currentPreset.slice(1))
+				button.setButtonText(prettifyPresetName(currentPreset))
 					.onClick(() => {
+						this.plugin.refreshPresetCache();
 						const availablePresets = this.plugin.getAvailablePresets();
 						new PresetSuggestModal(this.app, availablePresets, async (chosenPreset) => {
 							this.plugin.settings.presetOverride = chosenPreset;
@@ -316,18 +321,15 @@ class GrottoSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
-
 		// Text Settings
 		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Text Controls', cls: 'setting-item-name' });
 		// Font Weight
 		const fontWeightSetting = new Setting(containerEl)
 			.setName("Font Weight")
 			.setDesc("Adjust the font weight");
-
 		const currentValueEl = document.createElement('div');
 		currentValueEl.textContent = `Current weight: ${this.plugin.settings.fontWeight || 400}`;
 		fontWeightSetting.descEl.appendChild(currentValueEl);
-
 		fontWeightSetting.addSlider(slider => {
 			slider
 				.setLimits(200, 800, 100)
@@ -338,7 +340,6 @@ class GrottoSettingsTab extends PluginSettingTab {
 					currentValueEl.textContent = `Current weight: ${value}`;
 					await this.plugin.saveSettings();
 				});
-
 			return slider;
 		});
 		fontWeightSetting.addExtraButton(btn => {
@@ -369,7 +370,6 @@ class GrottoSettingsTab extends PluginSettingTab {
 					currentFontWidthEl.textContent = `Current width: ${value}%`;
 					await this.plugin.saveSettings();
 				});
-
 			return slider;
 		});
 		fontWidthSetting.addExtraButton(btn => {
@@ -485,7 +485,6 @@ class GrottoSettingsTab extends PluginSettingTab {
 					currentEmbedHeight.textContent = `Current height: ${value}px`;
 					await this.plugin.saveSettings();
 				});
-
 			return slider;
 		});
 		embedHeightSetting.addExtraButton(btn => {
@@ -516,11 +515,9 @@ class GrottoSettingsTab extends PluginSettingTab {
 		const mobileToolbarSetting = new Setting(containerEl)
 			.setName('Mobile Toolbar Height')
 			.setDesc('Set the maximum number of rows of tools to show for the mobile toolbar');
-
 		const currentMobileToolbarHeight = document.createElement('div');
 		currentMobileToolbarHeight.textContent = `Current height: ${this.plugin.settings.mobileToolbarheight || 2} rows`;
 		mobileToolbarSetting.descEl.appendChild(currentMobileToolbarHeight);
-
 		mobileToolbarSetting.addSlider(slider => {
 			slider
 				.setLimits(1, 3, 1)
