@@ -1,7 +1,8 @@
-import { App, addIcon, Plugin, PluginSettingTab, Setting, Notice, Modal, SuggestModal } from 'obsidian';
+import { App, addIcon, Plugin, PluginSettingTab, Setting, Notice, SuggestModal } from 'obsidian';
 
 interface GrottoSettings {
 	presetOverride: string;
+	sidebarOverride: boolean;
 	fontWeight: number;
 	fontWidth: number;
 	formattedAccent: boolean;
@@ -12,19 +13,19 @@ interface GrottoSettings {
 	mobileStatusbar: boolean;
 	mobileToolbarheight: number;
 	blockquoteBorder: boolean;
-	blockquoteStyle: boolean;
 	calloutBackground: boolean;
 	calloutIcon: boolean;
 	embedHeight: number;
 	embedTitle: boolean;
 	calendarInteraction: boolean;
-	calendarStyle: boolean;
+	calendarWeekend: boolean;
 	privacyRedacted: boolean;
 	privacyBlur: boolean;
 }
 
 const DEFAULT_SETTINGS: GrottoSettings = {
 	presetOverride: "",
+	sidebarOverride: false,
 	fontWeight: 400,
 	fontWidth: 100,
 	formattedAccent: true,
@@ -35,13 +36,12 @@ const DEFAULT_SETTINGS: GrottoSettings = {
 	mobileStatusbar: false,
 	mobileToolbarheight: 2,
 	blockquoteBorder: false,
-	blockquoteStyle: false,
 	calloutBackground: false,
 	calloutIcon: false,
 	embedHeight: 4000,
 	embedTitle: false,
 	calendarInteraction: false,
-	calendarStyle: false,
+	calendarWeekend: false,
 	privacyRedacted: false,
 	privacyBlur: false,
 }
@@ -157,7 +157,11 @@ export default class HiddenGrotto extends Plugin {
 	}
 	applySettingsToDOM() {
 		this.removePresets();
-
+		if (this.settings.sidebarOverride) {
+			document.body.classList.add('sidebar-preset');
+		} else {
+			document.body.classList.remove('sidebar-preset');
+		}
 		document.body.style.setProperty('font-weight', this.settings.fontWeight.toString());
 		document.body.style.setProperty('--file-line-width', `${this.settings.fontWidth}%`);
 		if (this.settings.formattedAccent) {
@@ -183,16 +187,6 @@ export default class HiddenGrotto extends Plugin {
 		document.body.style.setProperty('--system-status-background', mobileStatus);
 		const blockquoteBorder = this.settings.blockquoteBorder ? 'var(--color-accent)' : 'var(--text-normal)';
 		document.body.style.setProperty('--blockquote-border-color', blockquoteBorder);
-		if (this.settings.blockquoteStyle) {
-			document.body.style.setProperty('--blockquote-border-thickness', '0px');
-			document.body.style.setProperty('--grotto-blockquote-style', 'italic');
-			document.body.style.setProperty('--grotto-blockquote-alignment', 'center');
-		}
-		else {
-			document.body.style.setProperty('--blockquote-border-thickness', '2px');
-			document.body.style.setProperty('--grotto-blockquote-style', 'normal');
-			document.body.style.setProperty('--grotto-blockquote-alignment', 'start');
-		}
 		const calloutBackground = this.settings.calloutBackground ? 'var(--color-accent)' : 'var(--background-primary)';
 		document.body.style.setProperty('--grotto-callout-background-color', calloutBackground);
 		const calloutIcon = this.settings.calloutIcon ? 'block' : 'none';
@@ -206,19 +200,11 @@ export default class HiddenGrotto extends Plugin {
 			const presetClass = `preset-${this.settings.presetOverride.trim().toLowerCase()}`;
 			document.body.classList.add(presetClass);
 		}
-		if (this.settings.calendarStyle) {
-			document.body.style.setProperty('--grotto-calendar-border-color', 'transparent');
-			document.body.style.setProperty('--grotto-calendar-dayofweek-color', 'var(--grotto-calendar-color)');
-			document.body.style.setProperty('--grotto-calendar-dayofweek-background-color', 'transparent');
-			document.body.style.setProperty('--grotto-calendar-weekend-border-color', 'var(--grotto-accent-1)');
-			document.body.style.setProperty('--grotto-calendar-dayofweek-border-width', '1px');
+		if (this.settings.calendarWeekend) {
+			document.body.style.setProperty('--grotto-calendar-weekend-border-color', 'var(--grotto-calendar-border-color)');
 		}
 		else {
-			document.body.style.setProperty('--grotto-calendar-border-color', 'var(--grotto-accent-1)');
-			document.body.style.setProperty('--grotto-calendar-dayofweek-color', 'var(--grotto-night-0)');
-			document.body.style.setProperty('--grotto-calendar-dayofweek-background-color', 'var(--grotto-accent-1)');
 			document.body.style.setProperty('--grotto-calendar-weekend-border-color', 'transparent');
-			document.body.style.setProperty('--grotto-calendar-dayofweek-border-width', '0px');
 		}
 		if (this.settings.privacyRedacted) {
 			document.body.style.setProperty('--font-interface', 'var(--grotto-redacted)');
@@ -316,6 +302,18 @@ class GrottoSettingsTab extends PluginSettingTab {
 							await this.plugin.saveSettings();
 							this.display();
 						}).open();
+					});
+			});
+		// Sidebar Preset Toggle
+		new Setting(containerEl)
+			.setName('Sidebar Style')
+			.setDesc('Enable to use an alternate style for the sidebars in light mode')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.sidebarOverride)
+					.onChange(async (value) => {
+						this.plugin.settings.sidebarOverride = value;
+						await this.plugin.saveSettings();
 					});
 			});
 
@@ -446,17 +444,6 @@ class GrottoSettingsTab extends PluginSettingTab {
 					});
 			});
 		new Setting(containerEl)
-			.setName('Blockquote Style')
-			.setDesc('Enable to use an alternate blockquote style')
-			.addToggle(toggle => {
-				toggle
-					.setValue(this.plugin.settings.blockquoteStyle)
-					.onChange(async (value) => {
-						this.plugin.settings.blockquoteStyle = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		new Setting(containerEl)
 			.setName('Callout Background Accent')
 			.setDesc('Enable to use an accented background for callouts')
 			.addToggle(toggle => {
@@ -536,7 +523,7 @@ class GrottoSettingsTab extends PluginSettingTab {
 
 		mobileToolbarSetting.addSlider(slider => {
 			slider
-				.setLimits(1, 4, 1)
+				.setLimits(1, 3, 1)
 				.setValue(this.plugin.settings.mobileToolbarheight || 2)
 				.setDynamicTooltip()
 				.onChange(async (value) => {
@@ -597,15 +584,15 @@ class GrottoSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
-		// Calendar Style
+		// Calendar Weekend
 		new Setting(containerEl)
-			.setName('Calendar Style')
-			.setDesc('Enable to use an alternate calendar style')
+			.setName('Calendar Weekend Separator')
+			.setDesc('Enable to separate the weekend with a border')
 			.addToggle(toggle => {
 				toggle
-					.setValue(this.plugin.settings.calendarStyle)
+					.setValue(this.plugin.settings.calendarWeekend)
 					.onChange(async (value) => {
-						this.plugin.settings.calendarStyle = value;
+						this.plugin.settings.calendarWeekend = value;
 						await this.plugin.saveSettings();
 					});
 			});
@@ -613,8 +600,8 @@ class GrottoSettingsTab extends PluginSettingTab {
 		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Privacy Controls', cls: 'setting-item-name' });
 		// Redacted Text
 		new Setting(containerEl)
-			.setName('Redacted Text')
-			.setDesc('Enable to redact all the text from prying eyes')
+			.setName('Redact')
+			.setDesc('Enable to redact all the text')
 			.addToggle(toggle => {
 				toggle
 					.setValue(this.plugin.settings.privacyRedacted)
@@ -625,8 +612,8 @@ class GrottoSettingsTab extends PluginSettingTab {
 			});
 		// Blurred View
 		new Setting(containerEl)
-			.setName('Blurred View')
-			.setDesc('Enable to obscure everything from prying eyes')
+			.setName('Blur')
+			.setDesc('Enable to obscure everything')
 			.addToggle(toggle => {
 				toggle
 					.setValue(this.plugin.settings.privacyBlur)
