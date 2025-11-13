@@ -1,9 +1,9 @@
 {
-	"id": "hidden-grotto-theme-settings",
-	"name": "Hidden Grotto Settings",
-	"version": "1.0.7",
+	"id": "hidden-grotto-theme-controls",
+	"name": "Hidden Grotto Controls",
+	"version": "1.0.8",
 	"minAppVersion": "0.15.0",
-	"description": "Settings plugin for the Hidden Grotto theme",
+	"description": "Controls plugin for the Hidden Grotto theme",
 	"author": "HotAndCold",
 	"authorUrl": "https://github.com/HotAndCold245/Hidden-Grotto-Controls",
 	"isDesktopOnly": false
