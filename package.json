@@ -1,7 +1,7 @@
 {
-	"name": "hidden-grotto-theme-settings",
-	"version": "1.0.0",
-	"description": "Settings plugin for the Hidden Grotto theme",
+	"name": "hidden-grotto-theme-controls",
+	"version": "1.0.8",
+	"description": "Controls plugin for the Hidden Grotto theme",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
