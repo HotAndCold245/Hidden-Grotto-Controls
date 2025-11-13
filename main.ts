@@ -312,7 +312,7 @@ class GrottoSettingsTab extends PluginSettingTab {
 		// Sidebar Preset Toggle
 		new Setting(containerEl)
 			.setName('Sidebar Style')
-			.setDesc('Enable to use an alternate style for the sidebars in light mode')
+			.setDesc('Enable to use an alternate style for the sidebars')
 			.addToggle(toggle => {
 				toggle
 					.setValue(this.plugin.settings.sidebarOverride)
