@@ -7,6 +7,7 @@ interface GrottoSettings {
 	fontWidth: number;
 	formattedAccent: boolean;
 	tagInteraction: boolean;
+	tagAccent: boolean;
 	tableStyle: boolean;
 	tableColor: boolean;
 	tableWidth: boolean;
@@ -30,6 +31,7 @@ const DEFAULT_SETTINGS: GrottoSettings = {
 	fontWidth: 100,
 	formattedAccent: true,
 	tagInteraction: false,
+	tagAccent: false,
 	tableStyle: false,
 	tableColor: false,
 	tableWidth: true,
@@ -234,6 +236,11 @@ export default class HiddenGrotto extends Plugin {
 		else {
 			document.body.style.setProperty('--grotto-blur', '0px');
 		}
+		if (this.settings.tagAccent) {
+			document.body.classList.add('accented-tag');
+		} else {
+			document.body.classList.remove('accented-tag');
+		}
 	}
 	// Check for presets in the css and theme files to display in the settings tab
 	getAvailablePresets(): string[] {
@@ -430,6 +437,31 @@ class GrottoSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+		// Tag Settings
+		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Tag Controls', cls: 'setting-item-name' });
+		// Tags
+		new Setting(containerEl)
+			.setName('Tag Accent')
+			.setDesc('Enable to use accented tags')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.tagAccent)
+					.onChange(async (value) => {
+						this.plugin.settings.tagAccent = value;
+						await this.plugin.saveSettings();
+					});
+			});
+		new Setting(containerEl)
+			.setName('Tag Interaction')
+			.setDesc('Enable tag search when clicking on a tag')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.tagInteraction)
+					.onChange(async (value) => {
+						this.plugin.settings.tagInteraction = value;
+						await this.plugin.saveSettings();
+					});
+			});
 		// Blockquote Settings
 		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Blockquote Controls', cls: 'setting-item-name' });
 		new Setting(containerEl)
@@ -543,18 +575,6 @@ class GrottoSettingsTab extends PluginSettingTab {
 					this.display();
 				});
 		});
-		// Tags
-		new Setting(containerEl)
-			.setName('Tag Interaction')
-			.setDesc('Enable tag search when clicking on a tag')
-			.addToggle(toggle => {
-				toggle
-					.setValue(this.plugin.settings.tagInteraction)
-					.onChange(async (value) => {
-						this.plugin.settings.tagInteraction = value;
-						await this.plugin.saveSettings();
-					});
-			});
 		// Mobile notification bar color
 		new Setting(containerEl)
 			.setName('System Status Bar Accent')
