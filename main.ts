@@ -23,14 +23,12 @@ interface GrottoSettings {
 	privacyRedacted: boolean;
 	privacyBlur: boolean;
 	tagShape: boolean;
-	headerShape: boolean;
-	mobileShape: boolean;
-	uiShape: boolean;
+	mobileNewTab: boolean;
 }
 
 const DEFAULT_SETTINGS: GrottoSettings = {
 	presetOverride: "",
-	sidebarOverride: false,
+	sidebarOverride: true,
 	fontWeight: 400,
 	fontWidth: 100,
 	formattedAccent: true,
@@ -51,9 +49,7 @@ const DEFAULT_SETTINGS: GrottoSettings = {
 	privacyRedacted: false,
 	privacyBlur: false,
 	tagShape: false,
-	headerShape: false,
-	mobileShape: false,
-	uiShape: false,
+	mobileNewTab: false,
 }
 
 class PresetSuggestModal extends SuggestModal<string> {
@@ -163,7 +159,8 @@ export default class HiddenGrotto extends Plugin {
 			'--table-background', '--grotto-table-cell-width', '--grotto-tag-pointer-events',
 			'--system-status-background', '--blockquote-border-color', 
 			'--grotto-callout-background-color', '--grotto-callout-icon', '--embed-max-height',
-			'--grotto-embed-title', '--grotto-tag-border-radius', '--grotto-ui-border-radius', '--grotto-mobile-ui-border-radius'
+			'--grotto-embed-title', '--grotto-tag-border-radius', '--grotto-ui-border-radius', '--grotto-mobile-ui-border-radius',
+			'--grotto-navbar-new-tab'
 		];
 		variables.forEach(varName => document.body.style.removeProperty(varName));
 	}
@@ -256,17 +253,11 @@ export default class HiddenGrotto extends Plugin {
 		}
 		const roundedTags = this.settings.tagShape ? '1rem' : '0rem';
 		document.body.style.setProperty('--grotto-tag-border-radius', roundedTags);
-		if (this.settings.mobileShape) {
-			document.body.style.setProperty('--grotto-mobile-ui-border-radius', '2rem');
+		if (this.settings.mobileNewTab) {
+			document.body.style.setProperty('--grotto-navbar-new-tab', 'auto');
 		} 
 		else {
-			document.body.style.setProperty('--grotto-mobile-ui-border-radius', '0rem');
-		}
-		if (this.settings.uiShape) {
-			document.body.style.setProperty('--grotto-ui-border-radius', '2rem');
-		} 
-		else {
-			document.body.style.setProperty('--grotto-ui-border-radius', '0rem');
+			document.body.style.setProperty('--grotto-navbar-new-tab', 'none');
 		}
 	}
 	// Check for presets in the css and theme files to display in the settings tab
@@ -419,7 +410,7 @@ class GrottoSettingsTab extends PluginSettingTab {
 		});
 		new Setting(containerEl)
 			.setName('Formatted Text Accent')
-			.setDesc('Enable to use an accented bold, italic, and commented text')
+			.setDesc('Enable to use an accented bold and italic text')
 			.addToggle(toggle => {
 				toggle
 					.setValue(this.plugin.settings.formattedAccent)
@@ -612,6 +603,18 @@ class GrottoSettingsTab extends PluginSettingTab {
 					this.display();
 				});
 		});
+		// Mobile 
+		new Setting(containerEl)
+			.setName('New Tab Button')
+			.setDesc('Enable to display the New Tab button on the mobile navigation bar')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.mobileNewTab)
+					.onChange(async (value) => {
+						this.plugin.settings.mobileNewTab = value;
+						await this.plugin.saveSettings();
+					});
+			});
 		// Mobile notification bar color
 		new Setting(containerEl)
 			.setName('System Status Bar Accent')
@@ -621,33 +624,6 @@ class GrottoSettingsTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.mobileStatusbar)
 					.onChange(async (value) => {
 						this.plugin.settings.mobileStatusbar = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		
-		// UI Settings
-		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'UI Controls', cls: 'setting-item-name' });
-		// UI Borders
-		new Setting(containerEl)
-			.setName('UI Border Shape')
-			.setDesc('Enable to use a rounded UI design')
-			.addToggle(toggle => {
-				toggle
-					.setValue(this.plugin.settings.uiShape)
-					.onChange(async (value) => {
-						this.plugin.settings.uiShape = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		// Mobile Borders
-		new Setting(containerEl)
-			.setName('Mobile UI Border Shape')
-			.setDesc('Enable to use a rounded UI design for mobile-specific elements')
-			.addToggle(toggle => {
-				toggle
-					.setValue(this.plugin.settings.mobileShape)
-					.onChange(async (value) => {
-						this.plugin.settings.mobileShape = value;
 						await this.plugin.saveSettings();
 					});
 			});
