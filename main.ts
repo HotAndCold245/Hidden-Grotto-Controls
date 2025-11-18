@@ -22,6 +22,10 @@ interface GrottoSettings {
 	calendarWeekend: boolean;
 	privacyRedacted: boolean;
 	privacyBlur: boolean;
+	tagShape: boolean;
+	headerShape: boolean;
+	mobileShape: boolean;
+	uiShape: boolean;
 }
 
 const DEFAULT_SETTINGS: GrottoSettings = {
@@ -46,6 +50,10 @@ const DEFAULT_SETTINGS: GrottoSettings = {
 	calendarWeekend: false,
 	privacyRedacted: false,
 	privacyBlur: false,
+	tagShape: false,
+	headerShape: false,
+	mobileShape: false,
+	uiShape: false,
 }
 
 class PresetSuggestModal extends SuggestModal<string> {
@@ -71,7 +79,6 @@ class PresetSuggestModal extends SuggestModal<string> {
 		this.containerEl.classList.add("hidden-grotto-presets");
 	}
 }
-
 
 function prettifyPresetName(name: string): string {
 	return name
@@ -151,11 +158,12 @@ export default class HiddenGrotto extends Plugin {
 	}
 	private resetDOMStyles() {
 		const variables = [
-			'font-weight', '--file-line-width', '--grotto-toolbar-rows', '--grotto-table-border-style',
+			'font-weight', '--file-line-width', '--grotto-bold-color', '--grotto-italic-color', 
+			'--grotto-toolbar-rows', '--grotto-table-border-style', '--grotto-table-color', 
 			'--table-background', '--grotto-table-cell-width', '--grotto-tag-pointer-events',
-			'--system-status-background', '--blockquote-border-color', '--blockquote-background-color',
+			'--system-status-background', '--blockquote-border-color', 
 			'--grotto-callout-background-color', '--grotto-callout-icon', '--embed-max-height',
-			'--grotto-embed-title'
+			'--grotto-embed-title', '--grotto-tag-border-radius', '--grotto-ui-border-radius', '--grotto-mobile-ui-border-radius'
 		];
 		variables.forEach(varName => document.body.style.removeProperty(varName));
 	}
@@ -179,18 +187,22 @@ export default class HiddenGrotto extends Plugin {
 		if (this.settings.formattedAccent) {
 			document.body.style.setProperty('--grotto-bold-color', 'var(--grotto-accent-1)');
 			document.body.style.setProperty('--grotto-italic-color', 'var(--grotto-accent-1)');
-			document.body.style.setProperty('--grotto-comment-color', 'var(--grotto-accent-1)');
 		}
 		else {
 			document.body.style.setProperty('--grotto-bold-color', 'var(--text-normal)');
 			document.body.style.setProperty('--grotto-italic-color', 'var(--text-normal)');
-			document.body.style.setProperty('--grotto-comment-color', 'var(--text-normal)');
 		}
 		document.body.style.setProperty('--grotto-toolbar-rows', `${this.settings.mobileToolbarheight}`);
 		const tableBorders = this.settings.tableStyle ? 'separate' : 'collapse';
 		document.body.style.setProperty('--grotto-table-border-style', tableBorders);
-		const tableColors = this.settings.tableColor ? 'var(--color-accent)' : 'var(--background-primary)';
-		document.body.style.setProperty('--table-background', tableColors);
+		if (this.settings.tableColor) {
+			document.body.style.setProperty('--table-background', 'var(--grotto-accent-1)');
+			document.body.style.setProperty('--grotto-table-color', 'var(--grotto-day-1)');
+		}
+		else {
+			document.body.style.setProperty('--table-background', 'var(--background-primary)');
+			document.body.style.setProperty('--grotto-table-color', 'var(--text-normal)');
+		}
 		const tableWidth = this.settings.tableWidth ? 'max-content' : 'fit-content';
 		document.body.style.setProperty('--grotto-table-cell-width', tableWidth);
 		const pointerEvents = this.settings.tagInteraction ? 'auto' : 'none';
@@ -238,8 +250,23 @@ export default class HiddenGrotto extends Plugin {
 		}
 		if (this.settings.tagAccent) {
 			document.body.classList.add('accented-tag');
-		} else {
+		} 
+		else {
 			document.body.classList.remove('accented-tag');
+		}
+		const roundedTags = this.settings.tagShape ? '1rem' : '0rem';
+		document.body.style.setProperty('--grotto-tag-border-radius', roundedTags);
+		if (this.settings.mobileShape) {
+			document.body.style.setProperty('--grotto-mobile-ui-border-radius', '2rem');
+		} 
+		else {
+			document.body.style.setProperty('--grotto-mobile-ui-border-radius', '0rem');
+		}
+		if (this.settings.uiShape) {
+			document.body.style.setProperty('--grotto-ui-border-radius', '2rem');
+		} 
+		else {
+			document.body.style.setProperty('--grotto-ui-border-radius', '0rem');
 		}
 	}
 	// Check for presets in the css and theme files to display in the settings tab
@@ -318,8 +345,8 @@ class GrottoSettingsTab extends PluginSettingTab {
 			});
 		// Sidebar Preset Toggle
 		new Setting(containerEl)
-			.setName('Sidebar Style')
-			.setDesc('Enable to use an alternate style for the sidebars')
+			.setName('Sidebar Accent')
+			.setDesc('Enable to use an alternate style for the sidebar')
 			.addToggle(toggle => {
 				toggle
 					.setValue(this.plugin.settings.sidebarOverride)
@@ -452,6 +479,17 @@ class GrottoSettingsTab extends PluginSettingTab {
 					});
 			});
 		new Setting(containerEl)
+			.setName('Tag Shape')
+			.setDesc('Enable to use rounded tags')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.tagShape)
+					.onChange(async (value) => {
+						this.plugin.settings.tagShape = value;
+						await this.plugin.saveSettings();
+					});
+			});
+		new Setting(containerEl)
 			.setName('Tag Interaction')
 			.setDesc('Enable tag search when clicking on a tag')
 			.addToggle(toggle => {
@@ -563,7 +601,6 @@ class GrottoSettingsTab extends PluginSettingTab {
 
 			return slider;
 		});
-
 		mobileToolbarSetting.addExtraButton(btn => {
 			btn.setIcon('reset')
 				.setTooltip('Reset to default')
@@ -584,6 +621,33 @@ class GrottoSettingsTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.mobileStatusbar)
 					.onChange(async (value) => {
 						this.plugin.settings.mobileStatusbar = value;
+						await this.plugin.saveSettings();
+					});
+			});
+		
+		// UI Settings
+		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'UI Controls', cls: 'setting-item-name' });
+		// UI Borders
+		new Setting(containerEl)
+			.setName('UI Border Shape')
+			.setDesc('Enable to use a rounded UI design')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.uiShape)
+					.onChange(async (value) => {
+						this.plugin.settings.uiShape = value;
+						await this.plugin.saveSettings();
+					});
+			});
+		// Mobile Borders
+		new Setting(containerEl)
+			.setName('Mobile UI Border Shape')
+			.setDesc('Enable to use a rounded UI design for mobile-specific elements')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.mobileShape)
+					.onChange(async (value) => {
+						this.plugin.settings.mobileShape = value;
 						await this.plugin.saveSettings();
 					});
 			});
