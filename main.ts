@@ -16,6 +16,7 @@ interface GrottoSettings {
 	embedHeight: number;
 	calendarInteraction: boolean;
 	calendarWeekend: boolean;
+	calendarPosition: number;
 	privacyBlur: boolean;
 	privacyRedacted: boolean;
 }
@@ -36,6 +37,7 @@ const DEFAULT_SETTINGS: GrottoSettings = {
 	embedHeight: 4000,
 	calendarInteraction: false,
 	calendarWeekend: false,
+	calendarPosition: 50,
 	privacyRedacted: false,
 	privacyBlur: false,
 }
@@ -145,7 +147,7 @@ export default class HiddenGrotto extends Plugin {
 		const variables = [
 			'--grotto-tag-pointer-events', 'font-weight', '--file-line-width', '--grotto-bold-color', '--grotto-italic-color', 
 			'--grotto-table-border-style', '--grotto-table-color', '--grotto-table-background-color', '--grotto-table-cell-width', 
-			'--grotto-callout-background-color', '--grotto-callout-icon', '--embed-max-height'
+			'--grotto-callout-background-color', '--grotto-callout-icon', '--embed-max-height', '--grotto-calendar-view-height'
 		];
 		variables.forEach(varName => document.body.style.removeProperty(varName));
 	}
@@ -236,6 +238,9 @@ export default class HiddenGrotto extends Plugin {
 		else {
 			document.body.style.setProperty('--grotto-calendar-weekend-border-color', 'transparent');
 		}
+		/* Calendar Position */
+		'--grotto-calendar-view-height'
+		document.body.style.setProperty('--grotto-calendar-view-height', `${this.settings.calendarPosition}vh`);
 		/* Privacy Settings */
 		if (this.settings.privacyRedacted) {
 			document.body.style.setProperty('--font-interface', 'var(--grotto-redacted)');
@@ -577,6 +582,37 @@ class GrottoSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+		// Calendar Position
+		const calendarPositionSetting = new Setting(calendarGroupItems)
+			.setName('Calendar Position')
+			.setDesc('Adjust the position of the calendar plugin in the sidebar on mobile');
+
+		const calendarHeight = document.createElement('div');
+		calendarHeight.textContent = `Current height: ${this.plugin.settings.calendarPosition || 50}vh`;
+		calendarPositionSetting.descEl.appendChild(calendarHeight);
+		calendarPositionSetting.addSlider(slider => {
+			slider
+				.setLimits(0, 50, 5)
+				.setValue(this.plugin.settings.calendarPosition || 50)
+				.setDynamicTooltip()
+				.onChange(async (value) => {
+					this.plugin.settings.calendarPosition = value;
+					calendarHeight.textContent = `Current height: ${value}px`;
+					await this.plugin.saveSettings();
+				});
+			return slider;
+		});
+		calendarPositionSetting.addExtraButton(btn => {
+			btn.setIcon('reset')
+				.setTooltip('Reset to default')
+				.onClick(async () => {
+					const defaultValue = 50;
+					this.plugin.settings.calendarPosition = defaultValue;
+					calendarHeight.textContent = `Current height: ${defaultValue}vh`;
+					await this.plugin.saveSettings();
+					this.display();
+				});
+		});
 		// Privacy Settings
 		const privacyGroup = containerEl.createEl('div', { cls: 'setting-group' });
 		privacyGroup
