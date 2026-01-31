@@ -2,54 +2,42 @@ import { App, addIcon, Plugin, PluginSettingTab, Setting, Notice, SuggestModal }
 
 interface GrottoSettings {
 	presetOverride: string;
-	sidebarOverride: boolean;
+	tagInteraction: boolean;
+	tagAccent: boolean;
+	tagShape: boolean;
 	fontWeight: number;
 	fontWidth: number;
 	formattedAccent: boolean;
-	tagInteraction: boolean;
-	tagAccent: boolean;
+	headerRounded: boolean;
 	tableStyle: boolean;
 	tableColor: boolean;
 	tableWidth: boolean;
-	mobileStatusbar: boolean;
-	mobileToolbarheight: number;
-	blockquoteBorder: boolean;
-	calloutBackground: boolean;
 	calloutIcon: boolean;
 	embedHeight: number;
-	embedTitle: boolean;
 	calendarInteraction: boolean;
 	calendarWeekend: boolean;
-	privacyRedacted: boolean;
 	privacyBlur: boolean;
-	tagShape: boolean;
-	mobileNewTab: boolean;
+	privacyRedacted: boolean;
 }
 
 const DEFAULT_SETTINGS: GrottoSettings = {
 	presetOverride: "",
-	sidebarOverride: true,
-	fontWeight: 400,
-	fontWidth: 100,
-	formattedAccent: true,
 	tagInteraction: false,
 	tagAccent: false,
+	tagShape: false,
+	fontWeight: 500,
+	fontWidth: 100,
+	formattedAccent: true,
+	headerRounded: false,
 	tableStyle: false,
 	tableColor: false,
 	tableWidth: true,
-	mobileStatusbar: false,
-	mobileToolbarheight: 2,
-	blockquoteBorder: false,
-	calloutBackground: false,
 	calloutIcon: false,
 	embedHeight: 4000,
-	embedTitle: false,
 	calendarInteraction: false,
 	calendarWeekend: false,
 	privacyRedacted: false,
 	privacyBlur: false,
-	tagShape: false,
-	mobileNewTab: false,
 }
 
 class PresetSuggestModal extends SuggestModal<string> {
@@ -152,15 +140,12 @@ export default class HiddenGrotto extends Plugin {
 
 		new Notice(`Preset changed to: ${prettifyPresetName(nextPreset)}`);
 	}
+	/* EVERYTHING BELOW NEEDS UPDATING */
 	private resetDOMStyles() {
 		const variables = [
-			'font-weight', '--file-line-width', '--grotto-bold-color', '--grotto-italic-color', 
-			'--grotto-toolbar-rows', '--grotto-table-border-style', '--grotto-table-color', 
-			'--table-background', '--grotto-table-cell-width', '--grotto-tag-pointer-events',
-			'--system-status-background', '--blockquote-border-color', 
-			'--grotto-callout-background-color', '--grotto-callout-icon', '--embed-max-height',
-			'--grotto-embed-title', '--grotto-tag-border-radius', '--grotto-ui-border-radius', '--grotto-mobile-ui-border-radius',
-			'--grotto-navbar-new-tab'
+			'--grotto-tag-pointer-events', 'font-weight', '--file-line-width', '--grotto-bold-color', '--grotto-italic-color', 
+			'--grotto-table-border-style', '--grotto-table-color', '--grotto-table-background-color', '--grotto-table-cell-width', 
+			'--grotto-callout-background-color', '--grotto-callout-icon', '--embed-max-height'
 		];
 		variables.forEach(varName => document.body.style.removeProperty(varName));
 	}
@@ -173,60 +158,85 @@ export default class HiddenGrotto extends Plugin {
 		this.resetDOMStyles();
 	}
 	applySettingsToDOM() {
+		/* Color Controls */
+		/* Preset Selection */
 		this.removePresets();
-		if (this.settings.sidebarOverride) {
-			document.body.classList.add('sidebar-preset');
-		} else {
-			document.body.classList.remove('sidebar-preset');
+		if (this.settings.presetOverride && this.settings.presetOverride.trim() !== "") {
+			const presetClass = `preset-${this.settings.presetOverride.trim().toLowerCase()}`;
+			document.body.classList.add(presetClass);
 		}
+		/* Tag Controls */
+		/* Tag Interaction */
+		const pointerEvents = this.settings.tagInteraction ? 'auto' : 'none';
+		document.body.style.setProperty('--grotto-tag-pointer-events', pointerEvents);
+		/* Tag Accent */
+		if (this.settings.tagAccent) {
+			document.body.classList.add('grotto-tag-accented');
+		} 
+		else {
+			document.body.classList.remove('grotto-tag-accented');
+		}
+		/* Tag Shape */
+		if (this.settings.tagAccent) {
+			document.body.classList.add('grotto-tag-rounded');
+		} 
+		else {
+			document.body.classList.remove('grotto-tag-rounded');
+		}
+		/* Text Controls */
+		/* Font Weight */
 		document.body.style.setProperty('font-weight', this.settings.fontWeight.toString());
+		/* File Line Width */
 		document.body.style.setProperty('--file-line-width', `${this.settings.fontWidth}%`);
+		/* Formatted Text Accent */
 		if (this.settings.formattedAccent) {
-			document.body.style.setProperty('--grotto-bold-color', 'var(--grotto-accent-1)');
-			document.body.style.setProperty('--grotto-italic-color', 'var(--grotto-accent-1)');
+			document.body.style.setProperty('--grotto-bold-color', 'var(--grotto-accent)');
+			document.body.style.setProperty('--grotto-italic-color', 'var(--grotto-accent)');
 		}
 		else {
 			document.body.style.setProperty('--grotto-bold-color', 'var(--text-normal)');
 			document.body.style.setProperty('--grotto-italic-color', 'var(--text-normal)');
 		}
-		document.body.style.setProperty('--grotto-toolbar-rows', `${this.settings.mobileToolbarheight}`);
+		/* Simplified Headers */
+		if (this.settings.headerRounded) {
+			document.body.classList.add('grotto-header-rounded');
+		} 
+		else {
+			document.body.classList.remove('grotto-header-rounded');
+		}
+		/* Table Controls */
+		/* Table Border Style */
 		const tableBorders = this.settings.tableStyle ? 'separate' : 'collapse';
 		document.body.style.setProperty('--grotto-table-border-style', tableBorders);
+		/* Accented Table Cells */
 		if (this.settings.tableColor) {
-			document.body.style.setProperty('--table-background', 'var(--grotto-accent-1)');
-			document.body.style.setProperty('--grotto-table-color', 'var(--grotto-day-1)');
+			document.body.style.setProperty('--grotto-table-background-color', 'var(--grotto-accent)');
+			document.body.style.setProperty('--grotto-table-color', 'var(--grotto-light-1)');
 		}
 		else {
-			document.body.style.setProperty('--table-background', 'var(--background-primary)');
+			document.body.style.setProperty('--grotto-table-background-color', 'var(--background-primary)');
 			document.body.style.setProperty('--grotto-table-color', 'var(--text-normal)');
 		}
+		/* Table Cell Width */
 		const tableWidth = this.settings.tableWidth ? 'max-content' : 'fit-content';
 		document.body.style.setProperty('--grotto-table-cell-width', tableWidth);
-		const pointerEvents = this.settings.tagInteraction ? 'auto' : 'none';
-		document.body.style.setProperty('--grotto-tag-pointer-events', pointerEvents);
-		const mobileStatus = this.settings.mobileStatusbar ? 'var(--color-accent)' : 'var(--background-primary)';
-		document.body.style.setProperty('--system-status-background', mobileStatus);
-		const blockquoteBorder = this.settings.blockquoteBorder ? 'var(--color-accent)' : 'var(--text-normal)';
-		document.body.style.setProperty('--blockquote-border-color', blockquoteBorder);
-		const calloutBackground = this.settings.calloutBackground ? 'var(--color-accent)' : 'var(--background-primary)';
-		document.body.style.setProperty('--grotto-callout-background-color', calloutBackground);
+		/* Callouts */
 		const calloutIcon = this.settings.calloutIcon ? 'block' : 'none';
 		document.body.style.setProperty('--grotto-callout-icon', calloutIcon);
+		/* Embeds */
 		document.body.style.setProperty('--embed-max-height', `${this.settings.embedHeight}px`);
-		const embeddisplayTitle = this.settings.embedTitle ? 'block' : 'none';
-		document.body.style.setProperty('--grotto-embed-title', embeddisplayTitle);
+		/* Calendar Plugin */
+		/* Interaction */
 		const calendarpointerEvents = this.settings.calendarInteraction ? 'auto' : 'none';
 		document.body.style.setProperty('--grotto-calendar-pointer-events', calendarpointerEvents);
-		if (this.settings.presetOverride && this.settings.presetOverride.trim() !== "") {
-			const presetClass = `preset-${this.settings.presetOverride.trim().toLowerCase()}`;
-			document.body.classList.add(presetClass);
-		}
+		/* Weekend Indicator */
 		if (this.settings.calendarWeekend) {
 			document.body.style.setProperty('--grotto-calendar-weekend-border-color', 'var(--grotto-calendar-border-color)');
 		}
 		else {
 			document.body.style.setProperty('--grotto-calendar-weekend-border-color', 'transparent');
 		}
+		/* Privacy Settings */
 		if (this.settings.privacyRedacted) {
 			document.body.style.setProperty('--font-interface', 'var(--grotto-redacted)');
 			document.body.style.setProperty('--font-text', 'var(--grotto-redacted)');
@@ -244,20 +254,6 @@ export default class HiddenGrotto extends Plugin {
 		}
 		else {
 			document.body.style.setProperty('--grotto-blur', '0px');
-		}
-		if (this.settings.tagAccent) {
-			document.body.classList.add('accented-tag');
-		} 
-		else {
-			document.body.classList.remove('accented-tag');
-		}
-		const roundedTags = this.settings.tagShape ? '1rem' : '0rem';
-		document.body.style.setProperty('--grotto-tag-border-radius', roundedTags);
-		if (this.settings.mobileNewTab) {
-			document.body.style.setProperty('--grotto-navbar-new-tab', 'auto');
-		} 
-		else {
-			document.body.style.setProperty('--grotto-navbar-new-tab', 'none');
 		}
 	}
 	// Check for presets in the css and theme files to display in the settings tab
@@ -295,7 +291,6 @@ export default class HiddenGrotto extends Plugin {
 
 class GrottoSettingsTab extends PluginSettingTab {
 	plugin: HiddenGrotto;
-
 	constructor(app: App, plugin: HiddenGrotto) {
 		super(app, plugin);
 		this.plugin = plugin;
@@ -304,15 +299,19 @@ class GrottoSettingsTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
-		// Color Settings
-		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Color Controls', cls: 'setting-item-name' });
+		// Color Controls
+		const colorGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		colorGroup
+			.createEl('div', { cls: 'setting-item setting-item-heading' })
+  			.createEl('div', { text: 'Color Controls', cls: 'setting-item-name' });
+		const colorGroupItems = colorGroup.createEl('div', { cls: 'setting-items' });
 		// Presets
 		const availablePresets = this.plugin.getAvailablePresets();
 		const displayPresets = availablePresets.map(prettifyPresetName);
 		let presetInfoText = displayPresets.length > 0
 			? `Available presets: ${displayPresets.join(', ')}`
 			: `No preset classes found in loaded stylesheets.`;
-		new Setting(containerEl)
+		new Setting(colorGroupItems)
 			.setName("Presets")
 			.setDesc(createFragment(frag => {
 				frag.appendText("Select a custom preset");
@@ -334,22 +333,54 @@ class GrottoSettingsTab extends PluginSettingTab {
 						}).open();
 					});
 			});
-		// Sidebar Preset Toggle
-		new Setting(containerEl)
-			.setName('Sidebar Accent')
-			.setDesc('Enable to use an alternate style for the sidebar')
+		// Tag Controls
+		const tagGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		tagGroup
+			.createEl('div', { cls: 'setting-item setting-item-heading' })
+  			.createEl('div', { text: 'Tag Controls', cls: 'setting-item-name' });
+		const tagGroupItems = tagGroup.createEl('div', { cls: 'setting-items' });
+		// Tags
+		new Setting(tagGroupItems)
+			.setName('Tag Interaction')
+			.setDesc('Enable tag search when clicking on a tag')
 			.addToggle(toggle => {
 				toggle
-					.setValue(this.plugin.settings.sidebarOverride)
+					.setValue(this.plugin.settings.tagInteraction)
 					.onChange(async (value) => {
-						this.plugin.settings.sidebarOverride = value;
+						this.plugin.settings.tagInteraction = value;
 						await this.plugin.saveSettings();
 					});
 			});
-		// Text Settings
-		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Text Controls', cls: 'setting-item-name' });
+		new Setting(tagGroupItems)
+			.setName('Tag Accent')
+			.setDesc('Enable to use accented tags')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.tagAccent)
+					.onChange(async (value) => {
+						this.plugin.settings.tagAccent = value;
+						await this.plugin.saveSettings();
+					});
+			});
+		new Setting(tagGroupItems)
+			.setName('Tag Shape')
+			.setDesc('Enable to use rounded tags')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.tagShape)
+					.onChange(async (value) => {
+						this.plugin.settings.tagShape = value;
+						await this.plugin.saveSettings();
+					});
+			});
+		// Text Controls
+		const textGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		textGroup
+			.createEl('div', { cls: 'setting-item setting-item-heading' })
+  			.createEl('div', { text: 'Text Controls', cls: 'setting-item-name' });
+		const textGroupItems = textGroup.createEl('div', { cls: 'setting-items' });
 		// Font Weight
-		const fontWeightSetting = new Setting(containerEl)
+		const fontWeightSetting = new Setting(textGroupItems)
 			.setName("Font Weight")
 			.setDesc("Adjust the font weight");
 		const currentValueEl = document.createElement('div');
@@ -379,7 +410,7 @@ class GrottoSettingsTab extends PluginSettingTab {
 				});
 		});
 		// Text Width
-		const fontWidthSetting = new Setting(containerEl)
+		const fontWidthSetting = new Setting(textGroupItems)
 			.setName("File Line Width")
 			.setDesc("Adjust the width of the viewable lines of text");
 		const currentFontWidthEl = document.createElement('div');
@@ -408,7 +439,7 @@ class GrottoSettingsTab extends PluginSettingTab {
 					this.display();
 				});
 		});
-		new Setting(containerEl)
+		new Setting(textGroupItems)
 			.setName('Formatted Text Accent')
 			.setDesc('Enable to use an accented bold and italic text')
 			.addToggle(toggle => {
@@ -419,10 +450,24 @@ class GrottoSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
-		// Table Settings
-		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Table Controls', cls: 'setting-item-name' });
+		new Setting(textGroupItems)
+			.setName('Header Shape')
+			.setDesc('Enable to use rounded headers')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.headerRounded)
+					.onChange(async (value) => {
+						this.plugin.settings.headerRounded = value;
+						await this.plugin.saveSettings();
+					});
+			});
+		const tableGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		tableGroup
+			.createEl('div', { cls: 'setting-item setting-item-heading' })
+  			.createEl('div', { text: 'Table Controls', cls: 'setting-item-name' });
+		const tableGroupItems = tableGroup.createEl('div', { cls: 'setting-items' });
 		// Table border style
-		new Setting(containerEl)
+		new Setting(tableGroupItems)
 			.setName('Table Border Style')
 			.setDesc('Enable to separate the table borders')
 			.addToggle(toggle => {
@@ -433,9 +478,9 @@ class GrottoSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
-		new Setting(containerEl)
+		new Setting(tableGroupItems)
 			.setName('Table Background Accent')
-			.setDesc('Enable to use an accented background for tables')
+			.setDesc('Enable to use an accented background for table cells')
 			.addToggle(toggle => {
 				toggle
 					.setValue(this.plugin.settings.tableColor)
@@ -444,7 +489,7 @@ class GrottoSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
-		new Setting(containerEl)
+		new Setting(tableGroupItems)
 			.setName('Table Cell Width')
 			.setDesc('Enable to maximize table cell width')
 			.addToggle(toggle => {
@@ -455,67 +500,13 @@ class GrottoSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
-		// Tag Settings
-		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Tag Controls', cls: 'setting-item-name' });
-		// Tags
-		new Setting(containerEl)
-			.setName('Tag Accent')
-			.setDesc('Enable to use accented tags')
-			.addToggle(toggle => {
-				toggle
-					.setValue(this.plugin.settings.tagAccent)
-					.onChange(async (value) => {
-						this.plugin.settings.tagAccent = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		new Setting(containerEl)
-			.setName('Tag Shape')
-			.setDesc('Enable to use rounded tags')
-			.addToggle(toggle => {
-				toggle
-					.setValue(this.plugin.settings.tagShape)
-					.onChange(async (value) => {
-						this.plugin.settings.tagShape = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		new Setting(containerEl)
-			.setName('Tag Interaction')
-			.setDesc('Enable tag search when clicking on a tag')
-			.addToggle(toggle => {
-				toggle
-					.setValue(this.plugin.settings.tagInteraction)
-					.onChange(async (value) => {
-						this.plugin.settings.tagInteraction = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		// Blockquote Settings
-		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Blockquote Controls', cls: 'setting-item-name' });
-		new Setting(containerEl)
-			.setName('Blockquote Border Accent')
-			.setDesc('Enable to use an accented border for blockquotes')
-			.addToggle(toggle => {
-				toggle
-					.setValue(this.plugin.settings.blockquoteBorder)
-					.onChange(async (value) => {
-						this.plugin.settings.blockquoteBorder = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		new Setting(containerEl)
-			.setName('Callout Background Accent')
-			.setDesc('Enable to use an accented background for callouts')
-			.addToggle(toggle => {
-				toggle
-					.setValue(this.plugin.settings.calloutBackground)
-					.onChange(async (value) => {
-						this.plugin.settings.calloutBackground = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		new Setting(containerEl)
+		/* Callout Controls */
+		const calloutGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		calloutGroup
+			.createEl('div', { cls: 'setting-item setting-item-heading' })
+  			.createEl('div', { text: 'Callout and Embed Controls', cls: 'setting-item-name' });
+		const calloutGroupItems = calloutGroup.createEl('div', { cls: 'setting-items' });
+		new Setting(calloutGroupItems)
 			.setName('Callout Icon')
 			.setDesc('Enable to display callout icons')
 			.addToggle(toggle => {
@@ -526,10 +517,8 @@ class GrottoSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
-		// Embed Settings
-		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Embed Controls', cls: 'setting-item-name' });
 		// Embed Max Height
-		const embedHeightSetting = new Setting(containerEl)
+		const embedHeightSetting = new Setting(calloutGroupItems)
 			.setName('Embed Max Height')
 			.setDesc('Set the maximum viewable height of embeds');
 
@@ -559,78 +548,13 @@ class GrottoSettingsTab extends PluginSettingTab {
 					this.display();
 				});
 		});
-		new Setting(containerEl)
-			.setName('Embed Title')
-			.setDesc('Enable to display embed title')
-			.addToggle(toggle => {
-				toggle
-					.setValue(this.plugin.settings.embedTitle)
-					.onChange(async (value) => {
-						this.plugin.settings.embedTitle = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		// Mobile Settings
-		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Mobile Controls', cls: 'setting-item-name' });
-		// Mobile Toolbar
-		const mobileToolbarSetting = new Setting(containerEl)
-			.setName('Mobile Toolbar Height')
-			.setDesc('Set the maximum number of rows of tools to show for the mobile toolbar');
-		const currentMobileToolbarHeight = document.createElement('div');
-		currentMobileToolbarHeight.textContent = `Current height: ${this.plugin.settings.mobileToolbarheight || 2} rows`;
-		mobileToolbarSetting.descEl.appendChild(currentMobileToolbarHeight);
-		mobileToolbarSetting.addSlider(slider => {
-			slider
-				.setLimits(1, 3, 1)
-				.setValue(this.plugin.settings.mobileToolbarheight || 2)
-				.setDynamicTooltip()
-				.onChange(async (value) => {
-					this.plugin.settings.mobileToolbarheight = value;
-					currentMobileToolbarHeight.textContent = `Current height: ${value} rows`;
-					await this.plugin.saveSettings();
-				});
-
-			return slider;
-		});
-		mobileToolbarSetting.addExtraButton(btn => {
-			btn.setIcon('reset')
-				.setTooltip('Reset to default')
-				.onClick(async () => {
-					const defaultValue = 2;
-					this.plugin.settings.mobileToolbarheight = defaultValue;
-					currentMobileToolbarHeight.textContent = `Current height: ${defaultValue} rows`;
-					await this.plugin.saveSettings();
-					this.display();
-				});
-		});
-		// Mobile 
-		new Setting(containerEl)
-			.setName('New Tab Button')
-			.setDesc('Enable to display the New Tab button on the mobile navigation bar')
-			.addToggle(toggle => {
-				toggle
-					.setValue(this.plugin.settings.mobileNewTab)
-					.onChange(async (value) => {
-						this.plugin.settings.mobileNewTab = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		// Mobile notification bar color
-		new Setting(containerEl)
-			.setName('System Status Bar Accent')
-			.setDesc('Enable accented system status bar')
-			.addToggle(toggle => {
-				toggle
-					.setValue(this.plugin.settings.mobileStatusbar)
-					.onChange(async (value) => {
-						this.plugin.settings.mobileStatusbar = value;
-						await this.plugin.saveSettings();
-					});
-			});
 		// Calendar Settings
-		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Calendar Controls', cls: 'setting-item-name' });
-		// Calendar Interaction
-		new Setting(containerEl)
+		const calendarGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		calendarGroup
+			.createEl('div', { cls: 'setting-item setting-item-heading' })
+  			.createEl('div', { text: 'Calendar Plugin Controls', cls: 'setting-item-name' });
+		const calendarGroupItems = calendarGroup.createEl('div', { cls: 'setting-items' });
+		new Setting(calendarGroupItems)
 			.setName('Calendar Interaction')
 			.setDesc('Enable to allow daily note access when clicking on a date')
 			.addToggle(toggle => {
@@ -642,7 +566,7 @@ class GrottoSettingsTab extends PluginSettingTab {
 					});
 			});
 		// Calendar Weekend
-		new Setting(containerEl)
+		new Setting(calendarGroupItems)
 			.setName('Calendar Weekend Separator')
 			.setDesc('Enable to separate the weekend with a border')
 			.addToggle(toggle => {
@@ -654,9 +578,12 @@ class GrottoSettingsTab extends PluginSettingTab {
 					});
 			});
 		// Privacy Settings
-		containerEl.createEl('div', { cls: 'setting-item setting-item-heading' }).createEl('div', { cls: 'setting-item-info' }).createEl('div', { text: 'Privacy Controls', cls: 'setting-item-name' });
-		// Redacted Text
-		new Setting(containerEl)
+		const privacyGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		privacyGroup
+			.createEl('div', { cls: 'setting-item setting-item-heading' })
+  			.createEl('div', { text: 'Privacy Controls', cls: 'setting-item-name' });
+		const privacyGroupItems = privacyGroup.createEl('div', { cls: 'setting-items' });
+		new Setting(privacyGroupItems)
 			.setName('Redact')
 			.setDesc('Enable to redact all the text')
 			.addToggle(toggle => {
@@ -668,8 +595,8 @@ class GrottoSettingsTab extends PluginSettingTab {
 					});
 			});
 		// Blurred View
-		new Setting(containerEl)
-			.setName('Blur')
+		new Setting(privacyGroupItems)
+			.setName('Obscure')
 			.setDesc('Enable to obscure everything')
 			.addToggle(toggle => {
 				toggle
