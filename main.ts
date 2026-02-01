@@ -19,6 +19,8 @@ interface GrottoSettings {
 	calendarPosition: number;
 	privacyBlur: boolean;
 	privacyRedacted: boolean;
+	roundedUI: boolean;
+	hiddenBorder: boolean;
 }
 
 const DEFAULT_SETTINGS: GrottoSettings = {
@@ -40,6 +42,8 @@ const DEFAULT_SETTINGS: GrottoSettings = {
 	calendarPosition: 50,
 	privacyRedacted: false,
 	privacyBlur: false,
+	roundedUI: false,
+	hiddenBorder: false,
 }
 
 class PresetSuggestModal extends SuggestModal<string> {
@@ -167,6 +171,20 @@ export default class HiddenGrotto extends Plugin {
 			const presetClass = `preset-${this.settings.presetOverride.trim().toLowerCase()}`;
 			document.body.classList.add(presetClass);
 		}
+		/* UI Controls */
+		if (this.settings.roundedUI) {
+			document.body.classList.add('grotto-rounded-ui');
+		} 
+		else {
+			document.body.classList.remove('grotto-rounded-ui');
+		}
+		/* Hidden Borders */
+		if (this.settings.hiddenBorder) {
+			document.body.classList.add('grotto-hidden-border');
+		} 
+		else {
+			document.body.classList.remove('grotto-hidden-border');
+		}
 		/* Tag Controls */
 		/* Tag Interaction */
 		const pointerEvents = this.settings.tagInteraction ? 'auto' : 'none';
@@ -179,7 +197,7 @@ export default class HiddenGrotto extends Plugin {
 			document.body.classList.remove('grotto-tag-accented');
 		}
 		/* Tag Shape */
-		if (this.settings.tagAccent) {
+		if (this.settings.tagShape) {
 			document.body.classList.add('grotto-tag-rounded');
 		} 
 		else {
@@ -613,6 +631,34 @@ class GrottoSettingsTab extends PluginSettingTab {
 					this.display();
 				});
 		});
+		// UI Settings
+		const uiGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		uiGroup
+			.createEl('div', { cls: 'setting-item setting-item-heading' })
+  			.createEl('div', { text: 'UI Controls', cls: 'setting-item-name' });
+		const uiGroupItems = uiGroup.createEl('div', { cls: 'setting-items' });
+		new Setting(uiGroupItems)
+			.setName('UI Shape')
+			.setDesc('Enable to use a rounded appearance for the UI')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.roundedUI)
+					.onChange(async (value) => {
+						this.plugin.settings.roundedUI = value;
+						await this.plugin.saveSettings();
+					});
+			});/*
+		new Setting(uiGroupItems)
+			.setName('Border Visibility')
+			.setDesc('Enable to hide most of the borders')
+			.addToggle(toggle => {
+				toggle
+					.setValue(this.plugin.settings.hiddenBorder)
+					.onChange(async (value) => {
+						this.plugin.settings.hiddenBorder = value;
+						await this.plugin.saveSettings();
+					});
+			});*/
 		// Privacy Settings
 		const privacyGroup = containerEl.createEl('div', { cls: 'setting-group' });
 		privacyGroup
