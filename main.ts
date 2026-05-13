@@ -59,7 +59,7 @@ class PresetSuggestModal extends SuggestModal<string> {
 		);
 	}
 	renderSuggestion(preset: string, el: HTMLElement) {
-		el.createEl('div', { text: prettifyPresetName(preset) });
+		el.createDiv({ text: prettifyPresetName(preset) });
 	}
 	onChooseSuggestion(preset: string, evt: MouseEvent | KeyboardEvent) {
 		this.onChoose(preset);
@@ -78,7 +78,7 @@ function prettifyPresetName(name: string): string {
 }
 
 export default class HiddenGrotto extends Plugin {
-	settings: GrottoSettings;
+	settings: GrottoSettings = DEFAULT_SETTINGS;
 	private cachedPresets: string[] | null = null;
 	async onload() {
 		await this.loadSettings();
@@ -323,11 +323,11 @@ class GrottoSettingsTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 		// Color Controls
-		const colorGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		const colorGroup = containerEl.createDiv({ cls: 'setting-group' });
 		colorGroup
-			.createEl('div', { cls: 'setting-item setting-item-heading' })
-  			.createEl('div', { text: 'Color Controls', cls: 'setting-item-name' });
-		const colorGroupItems = colorGroup.createEl('div', { cls: 'setting-items' });
+			.createDiv({ cls: 'setting-item setting-item-heading' })
+  			.createDiv({ text: 'Color Controls', cls: 'setting-item-name' });
+		const colorGroupItems = colorGroup.createDiv({ cls: 'setting-items' });
 		// Presets
 		const availablePresets = this.plugin.getAvailablePresets();
 		const displayPresets = availablePresets.map(prettifyPresetName);
@@ -357,11 +357,11 @@ class GrottoSettingsTab extends PluginSettingTab {
 					});
 			});
 		// Tag Controls
-		const tagGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		const tagGroup = containerEl.createDiv({ cls: 'setting-group' });
 		tagGroup
-			.createEl('div', { cls: 'setting-item setting-item-heading' })
-  			.createEl('div', { text: 'Tag Controls', cls: 'setting-item-name' });
-		const tagGroupItems = tagGroup.createEl('div', { cls: 'setting-items' });
+			.createDiv({ cls: 'setting-item setting-item-heading' })
+  			.createDiv({ text: 'Tag Controls', cls: 'setting-item-name' });
+		const tagGroupItems = tagGroup.createDiv({ cls: 'setting-items' });
 		// Tags
 		new Setting(tagGroupItems)
 			.setName('Tag Interaction')
@@ -397,11 +397,11 @@ class GrottoSettingsTab extends PluginSettingTab {
 					});
 			});
 		// Text Controls
-		const textGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		const textGroup = containerEl.createDiv({ cls: 'setting-group' });
 		textGroup
-			.createEl('div', { cls: 'setting-item setting-item-heading' })
-  			.createEl('div', { text: 'Text Controls', cls: 'setting-item-name' });
-		const textGroupItems = textGroup.createEl('div', { cls: 'setting-items' });
+			.createDiv({ cls: 'setting-item setting-item-heading' })
+  			.createDiv({ text: 'Text Controls', cls: 'setting-item-name' });
+		const textGroupItems = textGroup.createDiv({ cls: 'setting-items' });
 		// Font Weight
 		const fontWeightSetting = new Setting(textGroupItems)
 			.setName("Font Weight")
@@ -484,11 +484,11 @@ class GrottoSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
-		const tableGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		const tableGroup = containerEl.createDiv({ cls: 'setting-group' });
 		tableGroup
-			.createEl('div', { cls: 'setting-item setting-item-heading' })
-  			.createEl('div', { text: 'Table Controls', cls: 'setting-item-name' });
-		const tableGroupItems = tableGroup.createEl('div', { cls: 'setting-items' });
+			.createDiv({ cls: 'setting-item setting-item-heading' })
+  			.createDiv({ text: 'Table Controls', cls: 'setting-item-name' });
+		const tableGroupItems = tableGroup.createDiv({ cls: 'setting-items' });
 		// Table border style
 		new Setting(tableGroupItems)
 			.setName('Table Border Style')
@@ -524,11 +524,11 @@ class GrottoSettingsTab extends PluginSettingTab {
 					});
 			});
 		/* Callout Controls */
-		const calloutGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		const calloutGroup = containerEl.createDiv({ cls: 'setting-group' });
 		calloutGroup
-			.createEl('div', { cls: 'setting-item setting-item-heading' })
-  			.createEl('div', { text: 'Callout and Embed Controls', cls: 'setting-item-name' });
-		const calloutGroupItems = calloutGroup.createEl('div', { cls: 'setting-items' });
+			.createDiv({ cls: 'setting-item setting-item-heading' })
+  			.createDiv({ text: 'Callout and Embed Controls', cls: 'setting-item-name' });
+		const calloutGroupItems = calloutGroup.createDiv({ cls: 'setting-items' });
 		new Setting(calloutGroupItems)
 			.setName('Callout Icon')
 			.setDesc('Enable to display callout icons')
@@ -572,11 +572,11 @@ class GrottoSettingsTab extends PluginSettingTab {
 				});
 		});
 		// Calendar Settings
-		const calendarGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		const calendarGroup = containerEl.createDiv({ cls: 'setting-group' });
 		calendarGroup
-			.createEl('div', { cls: 'setting-item setting-item-heading' })
-  			.createEl('div', { text: 'Calendar Plugin Controls', cls: 'setting-item-name' });
-		const calendarGroupItems = calendarGroup.createEl('div', { cls: 'setting-items' });
+			.createDiv({ cls: 'setting-item setting-item-heading' })
+  			.createDiv({ text: 'Calendar Plugin Controls', cls: 'setting-item-name' });
+		const calendarGroupItems = calendarGroup.createDiv({ cls: 'setting-items' });
 		new Setting(calendarGroupItems)
 			.setName('Calendar Interaction')
 			.setDesc('Enable to allow daily note access when clicking on a date')
@@ -632,11 +632,11 @@ class GrottoSettingsTab extends PluginSettingTab {
 				});
 		});
 		// UI Settings
-		const uiGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		const uiGroup = containerEl.createDiv({ cls: 'setting-group' });
 		uiGroup
-			.createEl('div', { cls: 'setting-item setting-item-heading' })
-  			.createEl('div', { text: 'UI Controls', cls: 'setting-item-name' });
-		const uiGroupItems = uiGroup.createEl('div', { cls: 'setting-items' });
+			.createDiv({ cls: 'setting-item setting-item-heading' })
+  			.createDiv({ text: 'UI Controls', cls: 'setting-item-name' });
+		const uiGroupItems = uiGroup.createDiv({ cls: 'setting-items' });
 		new Setting(uiGroupItems)
 			.setName('UI Shape')
 			.setDesc('Enable to use a rounded appearance for the UI')
@@ -660,11 +660,11 @@ class GrottoSettingsTab extends PluginSettingTab {
 					});
 			});*/
 		// Privacy Settings
-		const privacyGroup = containerEl.createEl('div', { cls: 'setting-group' });
+		const privacyGroup = containerEl.createDiv({ cls: 'setting-group' });
 		privacyGroup
-			.createEl('div', { cls: 'setting-item setting-item-heading' })
-  			.createEl('div', { text: 'Privacy Controls', cls: 'setting-item-name' });
-		const privacyGroupItems = privacyGroup.createEl('div', { cls: 'setting-items' });
+			.createDiv({ cls: 'setting-item setting-item-heading' })
+  			.createDiv({ text: 'Privacy Controls', cls: 'setting-item-name' });
+		const privacyGroupItems = privacyGroup.createDiv({ cls: 'setting-items' });
 		new Setting(privacyGroupItems)
 			.setName('Redact')
 			.setDesc('Enable to redact all the text')
