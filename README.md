@@ -1,4 +1,4 @@
-# Hidden-Grotto-Controls
+# Hidden Grotto Controls
 The settings plugin for Hidden Grotto. The following settings can be controlled using the plugin. #Note: Most of these settings are also available through the Style Settings plugin that is found in the Community Plugin browser. 
 ### Color Controls
 - Presets (Also comes with a ribbon button to cycle through the presets alphabetically)
